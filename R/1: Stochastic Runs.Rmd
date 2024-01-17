@@ -1,0 +1,301 @@
+---
+title: "1: Stochastic Runs"
+output: html_document
+date: "2023-06-15"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#the drawn parameters for KB (and SB) 12-inch and 14-inch MSLs are the same bc we are using the same parameters and set seed.
+
+###KELP BASS#########
+#Kelp Bass 12 inch TL size limit (before size limit was changed) 2004-feb 2013
+
+```{r}
+set.seed(1)
+
+setwd("/Volumes/NO NAME/LBSPR/Stoch/Stochastic") #Set this to the folder that contains the following three files. These files need to be downloaded from Jason Cope's stochastic LBSPR github
+source('stochasticLBSPR.r')
+source('YPR_SPR_RPs.r')
+source('Flexible_Control_Rule_code.r')
+
+setwd("/Users/connorcoscino/Desktop/Organized") #now set to folder with data. The data here is already converted to a binned format
+#Option 3: Use L and M/k inputs
+#Using LH parameters from literature
+KB_LH_PRE_LBSPR.LinfMK<-LBSPR_stochastic(
+  Length.dat= "/Users/connorcoscino/Desktop/Organized/Data/Binned Data/KB_BIN_PRE.csv", #.csv file of lengths
+  dataType.in="freq", #or raw
+  Nsamp=1000,
+  LH_in=3, 
+  LH.file=NA,
+  Linf=698,
+  Linf_CV=0.1,
+  k=NA,
+  k_CV=NA,
+  Cor_Linf_k=NA,
+  M_prior=NA,
+  M_k=2.647,
+  M_k_CV=0.2,
+  Cor_Linf_M_k=0.2,
+  L50=223,
+  L95=238.2,
+  maxF=15,
+  F_step = 0.1)
+
+#Look at the median and 95% CI of selected values (in this case, SPR and Fishing rate F)
+  KB_Pre_SPR <- apply(KB_LH_PRE_LBSPR.LinfMK$SPR,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T) #95% interval and 50% invterval
+KB_Pre_FM <- apply(KB_LH_PRE_LBSPR.LinfMK$F_M,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+KB_Pre_Sel50 <- apply(KB_LH_PRE_LBSPR.LinfMK$Sel50,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+KB_Pre_Sel95 <- apply(KB_LH_PRE_LBSPR.LinfMK$Sel95,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+
+
+
+```
+
+#Kelp Bass 14 inch TL size limit (after size limit was changed) March 2013-2021
+```{r}
+set.seed(1)
+
+setwd("/Volumes/NO NAME/LBSPR/Stoch/Stochastic") #Set this to the folder that contains the following three files
+source('stochasticLBSPR.r')
+source('YPR_SPR_RPs.r')
+source('Flexible_Control_Rule_code.r')
+
+setwd("/Users/connorcoscino/Desktop/Organized") #now set to folder with data
+#Option 3: Use L and M/k inputs
+#LH Parameters from 
+KB_LH_POST_LBSPR.LinfMK<-LBSPR_stochastic(
+  Length.dat= "/Users/connorcoscino/Desktop/Organized/Data/Binned Data/KB_BIN_POST.csv", #.csv file of lengths
+  dataType.in="freq", #or raw
+  Nsamp=1000,
+  LH_in=3, 
+  LH.file=NA,
+  Linf=698,
+  Linf_CV=0.1,
+  k=NA,
+  k_CV=NA,
+  Cor_Linf_k=NA,
+  M_prior=NA,
+  M_k=2.647,
+  M_k_CV=0.2,
+  Cor_Linf_M_k=0.2,
+  L50=223,
+  L95=238.2,
+  maxF=15,
+  F_step = 0.1)
+
+#Look at the median and 95% CI of selected values (in this case, SPR and Fishing rate F)
+KB_Post_SPR <- apply(KB_LH_POST_LBSPR.LinfMK$SPR,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T) #95% interval and 50% invterval
+KB_Post_FM <- apply(KB_LH_POST_LBSPR.LinfMK$F_M,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+KB_Post_Sel50 <- apply(KB_LH_POST_LBSPR.LinfMK$Sel50,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+KB_Post_Sel95 <- apply(KB_LH_POST_LBSPR.LinfMK$Sel95,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+
+```
+
+
+####BARRED SAND BASS######
+#Barred Sand Bass 12 inch TL size limit (before size limit was changed) 2004-feb 2013
+```{r}
+set.seed(1)
+
+setwd("/Volumes/NO NAME/LBSPR/Stoch/Stochastic") #Set this to the folder that contains the following three files
+source('stochasticLBSPR.r')
+source('YPR_SPR_RPs.r')
+source('Flexible_Control_Rule_code.r')
+
+setwd("/Users/connorcoscino/Desktop/Organized") #now set to folder with data
+#Option 3: Use L and M/k inputs
+#Based on Stephanus life history estimates
+SB_LH_PRE_LBSPR.LinfMK<-LBSPR_stochastic(
+  Length.dat="/Users/connorcoscino/Desktop/Organized/Data/Binned Data/SB_BIN_PRE.csv", #.csv file of lengths
+  dataType.in="freq", #or raw
+  Nsamp=1000,
+  LH_in=3, 
+  LH.file=NA,
+  Linf=606,
+  Linf_CV=0.1,
+  k=NA,
+  k_CV=NA,
+  Cor_Linf_k=NA,
+  M_prior=NA,
+  M_k=2.4,
+  M_k_CV=0.2,
+  Cor_Linf_M_k=0.2,
+  L50=229,
+  L95=241.35,
+  maxF=15,
+  F_step = 0.1)
+
+#Look at the median and 95% CI of selected values (in this case, SPR and Fishing rate F)
+SB_Pre_SPR <- apply(SB_LH_PRE_LBSPR.LinfMK$SPR,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+SB_Pre_FM <- apply(SB_LH_PRE_LBSPR.LinfMK$F_M,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+SB_Pre_Sel50 <- apply(SB_LH_PRE_LBSPR.LinfMK$Sel50,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+SB_Pre_Sel95 <- apply(SB_LH_PRE_LBSPR.LinfMK$Sel95,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+```
+
+#Barred Sand Bass 14 inch TL size limit (after size limit was changed) March 2013-2021
+```{r}
+set.seed(1)
+
+setwd("/Volumes/NO NAME/LBSPR/Stoch/Stochastic") #Set this to the folder that contains the following three files
+source('stochasticLBSPR.r')
+source('YPR_SPR_RPs.r')
+source('Flexible_Control_Rule_code.r')
+
+setwd("/Users/connorcoscino/Desktop/Organized") #now set to folder with data
+#Option 3: Use L and M/k inputs
+#Based on Stephanus life history estimates
+SB_LH_POST_LBSPR.LinfMK<-LBSPR_stochastic(
+  Length.dat= "/Users/connorcoscino/Desktop/Organized/Data/Binned Data/SB_BIN_POST.csv", #.csv file of lengths
+  dataType.in="freq", #or raw
+  Nsamp=1000,
+  LH_in=3, 
+  LH.file=NA,
+  Linf=606,
+  Linf_CV=0.1,
+  k=NA,
+  k_CV=NA,
+  Cor_Linf_k=NA,
+  M_prior=NA,
+  M_k=2.4,
+  M_k_CV=0.2,
+  Cor_Linf_M_k=0.2,
+  L50=229,
+  L95=241.35,
+  maxF=15,
+  F_step = 0.1)
+
+#Look at the median and 95% CI of selected values (in this case, SPR and Fishing rate F)
+SB_Post_SPR <- apply(SB_LH_POST_LBSPR.LinfMK$SPR,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+SB_Post_FM <- apply(SB_LH_POST_LBSPR.LinfMK$F_M,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+SB_Post_Sel50 <- apply(SB_LH_POST_LBSPR.LinfMK$Sel50,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+SB_Post_Sel95 <- apply(SB_LH_POST_LBSPR.LinfMK$Sel95,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+```
+
+
+######OCEAN WHITEFISH######
+OWF stochastic SPR using parameter inputs
+```{r}
+set.seed(1)
+
+setwd("/Volumes/NO NAME/LBSPR/Stoch/Stochastic") #Set this to the folder that contains the following three files
+source('stochasticLBSPR.r')
+source('YPR_SPR_RPs.r')
+source('Flexible_Control_Rule_code.r')
+
+setwd("/Users/connorcoscino/Desktop/Organized") #now set to folder with data
+#Option 3: Use L and M/k inputs
+#Based on Stephanus life history estimates
+Ex.Spp.LBSPR.LinfMK_OWF1<-LBSPR_stochastic(
+  Length.dat="/Users/connorcoscino/Desktop/Organized/Data/Binned Data/OWF_BIN.csv", #.csv file of lengths
+  dataType.in="freq", #or raw
+  Nsamp=1000,
+  LH_in=3, 
+  LH.file=NA,
+  Linf=779,
+  Linf_CV=0.1,
+  k=NA,
+  k_CV=NA,
+  Cor_Linf_k=NA,
+  M_prior=NA,
+  M_k=1.787,
+  M_k_CV=0.2,
+  Cor_Linf_M_k=0.2,
+  L50=430,
+  L95=513,
+  maxF=15,
+  F_step = 0.1)
+
+#Look at the median and 95% CI of selected values (in this case, SPR and Fishing rate F)
+OWF_SPR <- apply(Ex.Spp.LBSPR.LinfMK_OWF1$SPR,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+OWF_FM <- apply(Ex.Spp.LBSPR.LinfMK_OWF1$F_M,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+OWF_Sel50 <- apply(Ex.Spp.LBSPR.LinfMK_OWF1$Sel50,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+OWF_Sel95 <- apply(Ex.Spp.LBSPR.LinfMK_OWF1$Sel95,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+```
+
+######PACIFIC BARRACUDA###########
+Pacific barracuda stochastic SPR using parameter inputs
+```{r}
+set.seed(1)
+
+setwd("/Volumes/NO NAME/LBSPR/Stoch/Stochastic") #Set this to the folder that contains the following three files
+source('stochasticLBSPR.r')
+source('YPR_SPR_RPs.r')
+source('Flexible_Control_Rule_code.r')
+
+setwd("/Users/connorcoscino/Desktop/Organized") #now set to folder with data
+#Option 3: Use L and M/k inputs
+#Based on Stephanus life history estimates
+Ex.Spp.LBSPR.LinfMK_Barracuda1<-LBSPR_stochastic(
+  Length.dat="/Users/connorcoscino/Desktop/Organized/Data/Binned Data/Barracuda_BIN.csv", #.csv file of lengths
+  dataType.in="freq", #or raw
+  Nsamp=1000,
+  LH_in=3, 
+  LH.file=NA,
+  Linf=902.1,
+  Linf_CV=0.1,
+  k=NA,
+  k_CV=NA,
+  Cor_Linf_k=NA,
+  M_prior=NA,
+  M_k=1.221,
+  M_k_CV=0.2,
+  Cor_Linf_M_k=0.2,
+  L50=465,
+  L95=515,
+  maxF=15,
+  F_step = 0.1)
+
+#Look at the median and 95% CI of selected values (in this case, SPR and Fishing rate F)
+CUDA_SPR <- apply(Ex.Spp.LBSPR.LinfMK_Barracuda1$SPR,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+CUDA_FM <- apply(Ex.Spp.LBSPR.LinfMK_Barracuda1$F_M,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+CUDA_Sel50 <- apply(Ex.Spp.LBSPR.LinfMK_Barracuda1$Sel50,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+CUDA_Sel95 <- apply(Ex.Spp.LBSPR.LinfMK_Barracuda1$Sel95,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+```
+
+######OLIVE ROCKFISH########
+
+Olive RF stochastic SPR using parameter inputs
+
+```{r}
+set.seed(1)
+
+setwd("/Volumes/NO NAME/LBSPR/Stoch/Stochastic") #Set this to the folder that contains the following three files
+source('stochasticLBSPR.r')
+source('YPR_SPR_RPs.r')
+source('Flexible_Control_Rule_code.r')
+
+setwd("/Users/connorcoscino/Desktop/Organized") #now set to folder with data
+#Option 3: Use L and M/k inputs
+#Based on Stephanus life history estimates
+Ex.Spp.LBSPR.LinfMK_Olive1<-LBSPR_stochastic(
+  Length.dat="/Users/connorcoscino/Desktop/Organized/Data/Binned Data/OliveRockfish_BIN.csv", #.csv file of lengths
+  dataType.in="freq", #or raw
+  Nsamp=1000,
+  LH_in=3, 
+  LH.file=NA,
+  Linf=489.5,
+  Linf_CV=0.1,
+  k=NA,
+  k_CV=NA,
+  Cor_Linf_k=NA,
+  M_prior=NA,
+  M_k=1.08,
+  M_k_CV=0.2,
+  Cor_Linf_M_k=0.2,
+  L50=340,
+  L95=385,
+  maxF=15,
+  F_step = 0.1)
+
+#Look at the median and 95% CI of selected values (in this case, SPR and Fishing rate F)
+OLIVE_SPR <- apply(Ex.Spp.LBSPR.LinfMK_Olive1$SPR,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+OLIVE_FM <- apply(Ex.Spp.LBSPR.LinfMK_Olive1$F_M,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+OLIVE_Sel50 <- apply(Ex.Spp.LBSPR.LinfMK_Olive1$Sel50,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+OLIVE_Sel95 <- apply(Ex.Spp.LBSPR.LinfMK_Olive1$Sel95,2,quantile,c(0.025,0.25,0.5,0.75,0.975),na.rm=T)
+```

@@ -1,0 +1,105 @@
+---
+title: "Figure"
+output: html_document
+date: "2023-06-16"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Combine data
+```{r}
+LBSPRs.out.Ex.Spp<-data.frame(cbind(KB_LH_PRE_LBSPR.LinfMK$SPR, KB_LH_POST_LBSPR.LinfMK$SPR, SB_LH_PRE_LBSPR.LinfMK$SPR, SB_LH_POST_LBSPR.LinfMK$SPR, Ex.Spp.LBSPR.LinfMK_OWF1$SPR, Ex.Spp.LBSPR.LinfMK_Barracuda1$SPR, Ex.Spp.LBSPR.LinfMK_Olive1$SPR))
+colnames(LBSPRs.out.Ex.Spp)<-c("Kelp Bass 2004-2012","Kelp Bass 2013-2021","*Barred Sand Bass 2004-2012*", "*Barred Sand Bass 2013-2021*", "Ocean Whitefish", "Pacific Barracuda", "Olive Rockfish")
+LBSPRs.out.df.gg<-reshape2::melt(LBSPRs.out.Ex.Spp,variable.name="Data",value.name="SPR")
+colnames(LBSPRs.out.df.gg)<-c("Scenario","SPR")
+
+
+```
+#plotting sand bass in red
+
+```{r}
+library(dplyr)
+species_color <- c("*Barred Sand Bass 2004-2012*", "*Barred Sand Bass 2013-2021*")
+LBSPRs.out.df.gg <- mutate(LBSPRs.out.df.gg,
+                           my_colors = if_else(Scenario %in% species_color,
+                                               "to_plot_in_red",
+                                               "to_plot_in_black"))
+
+```
+
+make gradient
+```{r}
+library(ggplot2) 
+library(grid)
+library(RColorBrewer)
+
+make_gradient <- function(deg = 45, n = 100, cols = blues9) {
+  cols <- colorRampPalette(cols)(n + 1)
+  rad <- deg / (180 / pi)
+  mat <- matrix(
+    data = rep(seq(0, 1, length.out = n) * cos(rad), n),
+    byrow = TRUE,
+    ncol = n
+  ) +
+    matrix(
+      data = rep(seq(0, 1, length.out = n) * sin(rad), n),
+      byrow = FALSE,
+      ncol = n
+    )
+  mat <- mat - min(mat)
+  mat <- mat / max(mat)
+  mat <- 1 + mat * n
+  mat <- matrix(data = cols[round(mat)], ncol = n)
+  grid::rasterGrob(
+    image = mat,
+    width = unit(1, "npc"),
+    height = unit(1, "npc"), 
+    interpolate = TRUE
+  )
+}
+
+yellow_green <- make_gradient(
+  deg = 90, n = 500, cols = c("yellow", "green"))
+green_yellow <- make_gradient(
+  deg = 90, n = 500, cols = c("green", "yellow"))
+yellow_red<- make_gradient(
+  deg = 90, n = 500, cols = c("yellow", "red"))
+yellow<- make_gradient(
+  deg = 90, n = 500, cols = c("yellow"))
+```
+
+
+plot this
+
+```{r}
+library(scales)
+  
+#add asterisk 
+
+ggplot(LBSPRs.out.df.gg,aes(Scenario,SPR, group=Scenario, color =my_colors )) +
+  scale_color_manual(values=c("black", "red")) +
+  scale_y_continuous(limits = c(0,1), expand = c(0, 0)) +
+  annotation_custom(grob = green, xmin = -Inf, xmax = Inf, ymin = .5, ymax = 1)+
+  annotation_custom(grob = green_yellow, xmin = -Inf, xmax = Inf, ymin = .3, ymax = .6)+
+  annotation_custom(grob = yellow, xmin = -Inf, xmax = Inf, ymin = .25, ymax = .3)+
+  annotation_custom(grob = yellow_red, xmin = -Inf, xmax = Inf, ymin = 0, ymax = .25)+
+  geom_violin(draw_quantiles = c(0.25, 0.5, 0.75), width = 2)+
+geom_hline(yintercept=c(0.40,0.20),col=c("darkgreen","red"),lty=2,lwd=1.25)+
+  geom_text(aes(1.4, .20 ,label = "20% SPR", vjust = -1))+ #label horizontal line at 20% SPR
+  geom_text(aes(1.4, .40 ,label = "40% SPR", vjust = -1))+ #label horizontal line at 40% SPR
+  geom_text(aes(4, .1 ,label = "*", vjust = 1), size = 15)+#add asterisk in plot
+    geom_text(aes(5, .1 ,label = "*", vjust = 1), size = 15)+#add asterisk in plot
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"), legend.position = "none", plot.title=element_text(hjust=0.5, size = 16, face = "bold"), axis.text=element_text(size=12), axis.title = element_text(size=14))+
+  ggtitle("Stochastic Stock Status Evaluation")+
+  scale_x_discrete(limits = c("", "Kelp Bass 2004-2012","Kelp Bass 2013-2021","*Barred Sand Bass 2004-2012*", "*Barred Sand Bass 2013-2021*", "Ocean Whitefish", "Pacific Barracuda", "Olive Rockfish"), 
+                   breaks = c("Kelp Bass 2004-2012","Kelp Bass 2013-2021","*Barred Sand Bass 2004-2012*", "*Barred Sand Bass 2013-2021*", "Ocean Whitefish", "Pacific Barracuda", "Olive Rockfish"), expand=c(0,0), labels = label_wrap(10))
+
+#setwd("/Users/connorcoscino/Desktop/Organized/Plots")
+
+#ggsave("stockperformance_violin_asterisk.png", width = 30, height = 20, units = "cm", dpi = 500)
+
+```

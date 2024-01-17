@@ -1,0 +1,222 @@
+---
+title: "Simulate Relative Yields"
+output: html_document
+date: "2023-12-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#CHECK YIELDS using median values from stochastic runs
+
+#1-A
+Kelp Bass
+Simulate 2004-2012 pop (approx the median)
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Kelp Bass"
+#in TL
+KBPars@Linf <- 698 
+KBPars@L50 <- 223
+KBPars@L95 <- 238.3
+KBPars@MK <- 2.647
+KBPars@L_units <- "mm"
+
+KBPars@SL50 <- 313.38
+KBPars@SL95 <- 339.28
+KBPars@BinWidth <- 10
+#KBPars@FM <- 1.37
+KBPars@SPR <- 0.389
+KBPars@BinMax <- 1000
+KBPars@BinMin <- 0
+
+MySim_KB_2004_2012 <- LBSPRsim(KBPars)
+MySim_KB_2004_2012@SPR
+MySim_KB_2004_2012@FM
+calcCurves(MySim_KB_2004_2012)
+
+
+
+```
+
+#1-B
+Kelp Bass
+Simulate 2013-2021 pop
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Kelp Bass"
+#in TL
+KBPars@Linf <- 698 
+KBPars@L50 <- 223
+KBPars@L95 <- 238.2
+KBPars@MK <- 2.647
+KBPars@L_units <- "mm"
+
+KBPars@SL50 <- 360.11
+KBPars@SL95 <- 392.81
+KBPars@BinWidth <- 10
+#KBPars@FM <- 1.62 
+KBPars@SPR <- 0.463
+KBPars@BinMax <- 800
+KBPars@BinMin <- 0
+
+
+#KBPars@fDisc <- .5
+
+#KBPars@MLL <- 254
+#KBPars@sdLegal <- 8
+MySim_KB_2013_2021 <- LBSPRsim(KBPars)
+MySim_KB_2013_2021@SPR
+MySim_KB_2013_2021@FM
+calcCurves(MySim_KB_2013_2021)
+
+
+```
+
+#2-A
+Barred Sand Bass
+
+Simulate 2004-2012 pop
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Barred Sand Bass"
+#in TL
+KBPars@Linf <- 606 #both sexes
+KBPars@L50 <- 229 #females
+KBPars@L95 <- 241.35#females
+KBPars@MK <- 2.4
+KBPars@L_units <- "mm"
+
+KBPars@SL50 <- 335.57 
+KBPars@SL95 <- 368.52
+KBPars@BinWidth <- 10
+#KBPars@FM <- 0.47
+KBPars@SPR <- 0.649
+KBPars@BinMax <- 800
+KBPars@BinMin <- 0
+
+
+MySim_SB_2004_2012 <- LBSPRsim(KBPars)
+MySim_SB_2004_2012@SPR
+MySim_SB_2004_2012@FM
+calcCurves(MySim_SB_2004_2012)
+
+```
+
+#2-B
+Barred Sand Bass
+Simulate 2013-2021 pop
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Barred Sand Bass"
+#in TL
+KBPars@Linf <- 606 #both sexes
+KBPars@L50 <- 229 #females
+KBPars@L95 <- 241.35#females
+KBPars@MK <- 2.4
+KBPars@L_units <- "mm"
+
+KBPars@SL50 <- 377.98
+KBPars@SL95 <- 410.75
+KBPars@BinWidth <- 10
+#KBPars@FM <-0.31
+KBPars@SPR <- 0.746
+KBPars@BinMax <- 800
+KBPars@BinMin <- 0
+
+
+MySim_SB_2013_2021 <- LBSPRsim(KBPars)
+MySim_SB_2013_2021@SPR
+MySim_SB_2013_2021@FM#.56
+calcCurves(MySim_SB_2013_2021)
+
+```
+
+#3
+Ocean Whitefish
+####Simulate 2004-2021
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Ocean Whitefish"
+#in TL
+
+KBPars@Linf <- 779
+KBPars@L50 <- 430
+KBPars@L95 <- 513
+KBPars@MK <- 1.783
+
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 256.61
+KBPars@SL95 <- 303.46
+KBPars@SPR <- 0.054 
+KBPars@BinWidth <- 10
+#KBPars@FM <- 2.09
+
+KBPars@BinMax <- 1000
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_OWF_2004_2021 <- LBSPRsim(KBPars)
+MySim_OWF_2004_2021@SPR
+MySim_OWF_2004_2021@FM #2.07
+calcCurves(MySim_OWF_2004_2021)
+```
+
+#4
+Pacific Barracuda
+Simulate 2004-2021
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Pacific Barracuda"
+#in TL
+KBPars@Linf <- 902.1
+KBPars@L50 <- 465 
+KBPars@L95 <- 515 
+KBPars@MK <- 1.221
+KBPars@L_units <- "mm"
+
+
+KBPars@SL50 <- 842.030 
+KBPars@SL95 <- 983.790
+KBPars@BinWidth <- 20
+#KBPars@FM <- 1.32
+KBPars@SPR <- 0.756
+KBPars@BinMax <- 1500
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_Barr_2004_2021 <- LBSPRsim(KBPars)
+MySim_Barr_2004_2021@SPR
+MySim_Barr_2004_2021@FM #2.19
+calcCurves(MySim_Barr_2004_2021)
+```
+#5
+Olive Rockfish
+Simulate 2004-2021
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Olive Rockfish"
+#Parameters are in TL
+KBPars@Linf <- 489.5
+KBPars@L50 <- 340
+KBPars@L95 <- 385
+KBPars@MK <- 1.08
+KBPars@L_units <- "mm"
+KBPars@CVLinf <- .1
+
+KBPars@SL50 <- 275.050
+KBPars@SL95 <- 339.5700
+KBPars@BinWidth <- 10
+#KBPars@FM <- 0.65
+KBPars@SPR <-0.417
+KBPars@BinMax <- 700
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_ORF_2004_2021<- LBSPRsim(KBPars)
+MySim_ORF_2004_2021@SPR
+MySim_ORF_2004_2021@FM#.65
+calcCurves(MySim_ORF_2004_2021)
+
+```
