@@ -1,0 +1,252 @@
+---
+title: "Stochastic size limit Sims OWF"
+output: pdf_document
+date: "2022-12-05"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#1. Extract dataframe of LH parameters and FM
+```{r}
+LHOWF <- (Ex.Spp.LBSPR.LinfMK_OWF1[["LH_inputs"]])
+LHOWF$FM <- Ex.Spp.LBSPR.LinfMK_OWF1[["F_M"]]
+
+
+```
+
+#12INCH MSL
+```{r}
+LHOWF$SPR_12_Inch_MSL <- NA #Fill Row with NAs for data to go in
+
+
+  for(i in 1:nrow(LHOWF)){
+   if(is.na(LHOWF$FM[i])){
+    LHOWF$SPR_12_Inch_MSL[i] <- NA }
+else{
+  
+    #for each value of FM, put into sim
+KBPars <- new("LB_pars")
+KBPars@Species <- "OWF"
+
+KBPars@Linf <- LHOWF$Linf[i]
+KBPars@L50 <- LHOWF$L50[i]
+KBPars@L95 <- LHOWF$L95[i]
+KBPars@MK <- LHOWF$M_k[i]
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 305
+KBPars@SL95 <- 306
+KBPars@BinWidth <- 10
+KBPars@FM <- LHOWF$FM[i]
+KBPars@BinMax <- 1500
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_OWF_12 <- LBSPRsim(KBPars)
+
+
+LHOWF$SPR_12_Inch_MSL[i] <- MySim_OWF_12@SPR
+}}
+
+
+######
+quantile(LHOWF$SPR_12_Inch_MSL, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T)
+###########
+
+quantile(LHOWF$SPR_12_Inch_MSL, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T)
+
+```
+
+#14INCH MSL
+```{r}
+LHOWF$SPR_14_Inch_MSL <- NA
+
+
+  for(i in 1:nrow(LHOWF)){
+  if(is.na(LHOWF$FM[i])){
+    LHOWF$SPR_14_Inch_MSL[i] <- NA }
+else{
+    #for each value of FM, put into sim
+KBPars <- new("LB_pars")
+KBPars@Species <- "OWF"
+
+KBPars@Linf <- LHOWF$Linf[i]
+KBPars@L50 <- LHOWF$L50[i]
+KBPars@L95 <- LHOWF$L95[i]
+KBPars@MK <- LHOWF$M_k[i]
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 356
+KBPars@SL95 <- 357
+KBPars@BinWidth <- 10
+KBPars@FM <- LHOWF$FM[i]
+KBPars@BinMax <- 1500
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_OWF_14 <- LBSPRsim(KBPars)
+
+
+LHOWF$SPR_14_Inch_MSL[i] <- MySim_OWF_14@SPR
+}}
+
+
+###
+quantile(LHOWF$SPR_14_Inch_MSL, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T)
+
+###########
+
+```
+
+#16INCH MSL
+```{r}
+LHOWF$SPR_16_Inch_MSL <- NA
+
+
+  for(i in 1:nrow(LHOWF)){
+  if(is.na(LHOWF$FM[i])){
+    LHOWF$SPR_16_Inch_MSL[i] <- NA }
+else{
+    #for each value of FM, put into sim
+KBPars <- new("LB_pars")
+KBPars@Species <- "OWF"
+
+KBPars@Linf <- LHOWF$Linf[i]
+KBPars@L50 <- LHOWF$L50[i]
+KBPars@L95 <- LHOWF$L95[i]
+KBPars@MK <- LHOWF$M_k[i]
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 406
+KBPars@SL95 <- 407
+KBPars@BinWidth <- 10
+KBPars@FM <- LHOWF$FM[i]
+KBPars@BinMax <- 1500
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_OWF_16 <- LBSPRsim(KBPars)
+
+
+LHOWF$SPR_16_Inch_MSL[i] <- MySim_OWF_16@SPR
+
+    }}
+
+###
+quantile(LHOWF$SPR_16_Inch_MSL, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T)
+
+###########
+
+```
+
+
+#18INCH MSL
+```{r}
+LHOWF$SPR_18_Inch_MSL <- NA
+
+
+  for(i in 1:nrow(LHOWF)){
+  if(is.na(LHOWF$FM[i])){
+    LHOWF$SPR_18_Inch_MSL[i] <- NA }
+else{
+    #for each value of FM, put into sim
+KBPars <- new("LB_pars")
+KBPars@Species <- "OWF"
+
+KBPars@Linf <- LHOWF$Linf[i]
+KBPars@L50 <- LHOWF$L50[i]
+KBPars@L95 <- LHOWF$L95[i]
+KBPars@MK <- LHOWF$M_k[i]
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 457
+KBPars@SL95 <- 458
+KBPars@BinWidth <- 10
+KBPars@FM <- LHOWF$FM[i]
+KBPars@BinMax <- 1500
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_OWF_18 <- LBSPRsim(KBPars)
+
+
+LHOWF$SPR_18_Inch_MSL[i] <- MySim_OWF_18@SPR
+ }}
+
+##
+quantile(LHOWF$SPR_18_Inch_MSL, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T)
+
+###########
+
+```
+
+
+
+#20INCH MSL
+```{r}
+LHOWF$SPR_20_Inch_MSL <- NA
+
+
+  for(i in 1:nrow(LHOWF)){
+  if(is.na(LHOWF$FM[i])){
+    LHOWF$SPR_20_Inch_MSL[i] <- NA }
+else{
+    #for each value of FM, put into sim
+KBPars <- new("LB_pars")
+KBPars@Species <- "OWF"
+
+KBPars@Linf <- LHOWF$Linf[i]
+KBPars@L50 <- LHOWF$L50[i]
+KBPars@L95 <- LHOWF$L95[i]
+KBPars@MK <- LHOWF$M_k[i]
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 508
+KBPars@SL95 <- 509
+KBPars@BinWidth <- 10
+KBPars@FM <- LHOWF$FM[i]
+KBPars@BinMax <- 1500
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_OWF_20 <- LBSPRsim(KBPars)
+
+
+LHOWF$SPR_20_Inch_MSL[i] <- MySim_OWF_20@SPR
+ }}
+
+##
+quantile(LHOWF$SPR_20_Inch_MSL, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T)
+
+###########
+
+```
+
+
+#manipulate dataframe
+```{r}
+OWF_sizelimits <- data.frame(cbind(Ex.Spp.LBSPR.LinfMK_OWF1$SPR, LHOWF$SPR_12_Inch_MSL, LHOWF$SPR_14_Inch_MSL, LHOWF$SPR_16_Inch_MSL, LHOWF$SPR_18_Inch_MSL, LHOWF$SPR_20_Inch_MSL))
+colnames(OWF_sizelimits) <- c("2004-2021 CRFS", "12-Inch MSL Simulation", "14-Inch MSL Simulation", "16-Inch MSL Simulation", "18-Inch MSL Simulation", "20-Inch MSL Simulation")
+OWF_sizelimits_gg<-melt(OWF_sizelimits,variable.name="Data",value.name="SPR")
+colnames(OWF_sizelimits_gg)<-c("Scenario","SPR")
+
+
+
+#VIOLIN
+ggplot(OWF_sizelimits_gg,aes(Scenario,SPR, group=Scenario)) +
+  scale_color_manual(values=c("black", "red")) +
+  scale_y_continuous(limits = c(0,1), expand = c(0, 0)) +
+ annotation_custom(grob = green, xmin = -Inf, xmax = Inf, ymin = .5, ymax = 1)+
+  annotation_custom(grob = green_yellow, xmin = -Inf, xmax = Inf, ymin = .3, ymax = .6)+
+  annotation_custom(grob = yellow, xmin = -Inf, xmax = Inf, ymin = .25, ymax = .3)+
+  annotation_custom(grob = yellow_red, xmin = -Inf, xmax = Inf, ymin = 0, ymax = .25)+
+  geom_violin(draw_quantiles = c(0.25, 0.5, 0.75))+
+  geom_hline(yintercept=c(0.40,0.20),col=c("darkgreen","red"),lty=2,lwd=1.25)+
+  geom_text(aes(1.5, .20 ,label = "20% SPR", vjust = -1))+ #label horizontal line at 20% SPR
+  geom_text(aes(1.5, .40 ,label = "40% SPR", vjust = -1))+ #label horizontal line at 40% SPR
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+  ggtitle("Ocean Whitefish Size Limit Simulations")+
+  theme(plot.title=element_text(hjust=0.5))+
+    scale_x_discrete(limits = c("", "2004-2021 CRFS", "12-Inch MSL Simulation", "14-Inch MSL Simulation", "16-Inch MSL Simulation", "18-Inch MSL Simulation", "20-Inch MSL Simulation", ""), breaks = c("2004-2021 CRFS", "12-Inch MSL Simulation", "14-Inch MSL Simulation", "16-Inch MSL Simulation", "18-Inch MSL Simulation", "20-Inch MSL Simulation"), expand=c(0,0), labels = label_wrap(10))
+#ggsave("OWF_Stochastic_MSLsim.png", width = 30, height = 20, units = "cm", dpi = 500)
+```

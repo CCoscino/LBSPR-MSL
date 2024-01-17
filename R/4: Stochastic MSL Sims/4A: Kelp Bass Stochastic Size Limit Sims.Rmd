@@ -1,0 +1,244 @@
+---
+title: "Kelp Bass Stochastic Size Limit Sims"
+output: pdf_document
+date: "2022-12-06"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#1. Extract dataframe of LH parameters and FM
+```{r}
+#2004-2012
+LHKB_PRE <- (KB_LH_PRE_LBSPR.LinfMK[["LH_inputs"]])
+LHKB_PRE$FM <- KB_LH_PRE_LBSPR.LinfMK[["F_M"]]
+
+
+
+#2013-2021
+LHKB_POST <- (KB_LH_POST_LBSPR.LinfMK[["LH_inputs"]])
+LHKB_POST$FM <- KB_LH_POST_LBSPR.LinfMK[["F_M"]]
+
+
+```
+
+
+#12 INCH MSL knife edge -- compare to 2004-2012 data
+```{r}
+LHKB_PRE$SPR_12_Inch_MS_KE <- NA
+
+
+
+  for(i in 1:nrow(LHKB_PRE)){
+    if(is.na(LHKB_PRE$FM[i])){
+    LHKB_PRE$SPR_12_Inch_MS_KE[i] <- NA }
+else{
+    #for each value of FM, put into sim
+KBPars <- new("LB_pars")
+KBPars@Species <- "Kelp Bass"
+
+KBPars@Linf <- LHKB_PRE$Linf[i]
+KBPars@L50 <- LHKB_PRE$L50[i]
+KBPars@L95 <- LHKB_PRE$L95[i]
+KBPars@MK <- LHKB_PRE$M_k[i]
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 305
+KBPars@SL95 <- 306
+KBPars@BinWidth <- 10 
+KBPars@FM <- LHKB_PRE$FM[i]
+KBPars@BinMax <- 1500
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_KelpBass_12_KE <- LBSPRsim(KBPars)
+
+
+LHKB_PRE$SPR_12_Inch_MS_KE[i] <- MySim_KelpBass_12_KE@SPR
+}}
+
+
+####
+quantile(LHKB_PRE$SPR_12_Inch_MS_KE, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T)
+
+###########
+quantile(LHKB_PRE$FM, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T)
+```
+
+#14 INCH MSL knife edge --use 2004-2012 FM values and compare to 2013-2021
+```{r}
+LHKB_PRE$SPR_14_Inch_MS_KE <- NA
+
+
+
+  for(i in 1:nrow(LHKB_PRE)){
+    if(is.na(LHKB_PRE$FM[i])){
+    LHKB_PRE$SPR_14_Inch_MS_KE[i] <- NA }
+else{
+    
+    #for each value of FM, put into sim
+KBPars <- new("LB_pars")
+KBPars@Species <- "Kelp Bass"
+
+KBPars@Linf <- LHKB_PRE$Linf[i]
+KBPars@L50 <- LHKB_PRE$L50[i]
+KBPars@L95 <- LHKB_PRE$L95[i]
+KBPars@MK <- LHKB_PRE$M_k[i]
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 356
+KBPars@SL95 <- 357
+KBPars@BinWidth <- 10 
+KBPars@FM <- LHKB_PRE$FM[i]
+KBPars@BinMax <- 1500
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_KelpBass_14_KE <- LBSPRsim(KBPars)
+
+
+LHKB_PRE$SPR_14_Inch_MS_KE[i] <- MySim_KelpBass_14_KE@SPR
+}}
+
+
+####
+quantile(LHKB_PRE$SPR_14_Inch_MS_KE, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T)
+
+###########
+
+```
+
+#manipulate dataframe and make plot the compares  
+```{r}
+KelpBass_sizelimits <- data.frame(cbind(KB_LH_PRE_LBSPR.LinfMK$SPR, LHKB_PRE$SPR_12_Inch_MS_KE, KB_LH_POST_LBSPR.LinfMK$SPR, LHKB_PRE$SPR_14_Inch_MS_KE))
+colnames(KelpBass_sizelimits) <- c("2004-2012 CRFS", "12 Inch Knife-Edge MSL Simulation", "2013-2021 CRFS", "14 Inch Knife-Edge MSL Simulation")
+KelpBass_sizelimits_gg<-melt(KelpBass_sizelimits,variable.name="Data",value.name="SPR")
+colnames(KelpBass_sizelimits_gg)<-c("Scenario","SPR")
+
+
+
+#VIOLIN
+ggplot(KelpBass_sizelimits_gg,aes(Scenario,SPR, group=Scenario)) +
+  scale_color_manual(values=c("black", "red")) +
+  scale_y_continuous(limits = c(0,1), expand = c(0, 0)) +
+  annotation_custom(grob = green, xmin = -Inf, xmax = Inf, ymin = .5, ymax = 1)+
+  annotation_custom(grob = green_yellow, xmin = -Inf, xmax = Inf, ymin = .3, ymax = .6)+
+  annotation_custom(grob = yellow, xmin = -Inf, xmax = Inf, ymin = .25, ymax = .3)+
+  annotation_custom(grob = yellow_red, xmin = -Inf, xmax = Inf, ymin = 0, ymax = .25)+
+  geom_violin(draw_quantiles = c(0.25, 0.5, 0.75))+
+  geom_hline(yintercept=c(0.40,0.20),col=c("darkgreen","red"),lty=2,lwd=1.25)+
+  geom_text(aes(2.5, .20 ,label = "20% SPR", vjust = -1))+ #label horizontal line at 20% SPR
+  geom_text(aes(2.5, .40 ,label = "40% SPR", vjust = -1))+ #label horizontal line at 40% SPR
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+  ggtitle("Kelp Bass Size Limit Simulations")+
+  theme(plot.title=element_text(hjust=0.5))
+
+#ggsave("KelpBass_Stochastic_MSLsim.png", width = 30, height = 20, units = "cm", dpi = 500)
+```
+
+#16 INCH MSL knife edge --use 2013-2021 FM values 
+```{r}
+LHKB_POST$SPR_16_Inch_MS_KE <- NA
+
+
+
+  for(i in 1:nrow(LHKB_POST)){
+    if(is.na(LHKB_POST$FM[i])){
+    LHKB_POST$SPR_16_Inch_MS_KE[i] <- NA }
+else{
+    #for each value of FM, put into sim
+KBPars <- new("LB_pars")
+KBPars@Species <- "Kelp Bass"
+
+KBPars@Linf <- LHKB_POST$Linf[i]
+KBPars@L50 <- LHKB_POST$L50[i]
+KBPars@L95 <- LHKB_POST$L95[i]
+KBPars@MK <- LHKB_POST$M_k[i]
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 406
+KBPars@SL95 <- 407
+KBPars@BinWidth <- 10 
+KBPars@FM <- LHKB_POST$FM[i]
+KBPars@BinMax <- 1500
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_KelpBass_16_KE <- LBSPRsim(KBPars)
+
+
+LHKB_POST$SPR_16_Inch_MS_KE[i] <- MySim_KelpBass_16_KE@SPR
+}}
+
+
+####
+quantile(LHKB_POST$SPR_16_Inch_MS_KE, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T)
+
+###########
+
+```
+
+#manipulate dataframe and make plot the compares 
+```{r}
+KelpBass_sizelimits2 <- data.frame(cbind(KB_LH_PRE_LBSPR.LinfMK$SPR, LHKB_PRE$SPR_12_Inch_MS_KE, KB_LH_POST_LBSPR.LinfMK$SPR, LHKB_PRE$SPR_14_Inch_MS_KE, LHKB_POST$SPR_16_Inch_MS_KE))
+colnames(KelpBass_sizelimits2) <- c("2004-2012 CRFS", "12-Inch MSL Simulation (Knife-Edge Selectivity)", "2013-2021 CRFS", "14-Inch MSL Simulation (Knife-Edge Selectivity)", "16-Inch MSL Simulation (Knife-Edge Selectivity)")
+KelpBass_sizelimits_gg2<-melt(KelpBass_sizelimits2,variable.name="Data",value.name="SPR")
+colnames(KelpBass_sizelimits_gg2)<-c("Scenario","SPR")
+
+library(scales)
+
+#VIOLIN
+ggplot(KelpBass_sizelimits_gg2,aes(Scenario,SPR, group=Scenario)) +
+  scale_color_manual(values=c("black", "red")) +
+  scale_y_continuous(limits = c(0,1), expand = c(0, 0)) +
+  annotation_custom(grob = green, xmin = -Inf, xmax = Inf, ymin = .5, ymax = 1)+
+  annotation_custom(grob = green_yellow, xmin = -Inf, xmax = Inf, ymin = .3, ymax = .6)+
+  annotation_custom(grob = yellow, xmin = -Inf, xmax = Inf, ymin = .25, ymax = .3)+
+  annotation_custom(grob = yellow_red, xmin = -Inf, xmax = Inf, ymin = 0, ymax = .25)+
+  geom_violin(draw_quantiles = c(0.25, 0.5, 0.75))+
+  geom_hline(yintercept=c(0.40,0.20),col=c("darkgreen","red"),lty=2,lwd=1.25)+
+  geom_text(aes(1.25, .20 ,label = "20% SPR", vjust = -1))+ #label horizontal line at 20% SPR
+  geom_text(aes(1.25, .40 ,label = "40% SPR", vjust = -1))+ #label horizontal line at 40% SPR
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+  ggtitle("Kelp Bass Size Limit Simulations")+
+  theme(plot.title=element_text(hjust=0.5))+
+  scale_x_discrete(limits = c("", "2004-2012 CRFS", "12-Inch MSL Simulation (Knife-Edge Selectivity)", "2013-2021 CRFS", "14-Inch MSL Simulation (Knife-Edge Selectivity)", "16-Inch MSL Simulation (Knife-Edge Selectivity)", ""), breaks = c("2004-2012 CRFS", "12-Inch MSL Simulation (Knife-Edge Selectivity)", "2013-2021 CRFS", "14-Inch MSL Simulation (Knife-Edge Selectivity)", "16-Inch MSL Simulation (Knife-Edge Selectivity)"), expand=c(0,0), labels = label_wrap(15))
+#guides(x = guide_axis(n.dodge = 3))
+
+#ggsave("KelpBass_Stochastic_MSLsim.png", width = 30, height = 20, units = "cm", dpi = 500)
+```
+
+#just 2013-2021 and 14 inch MSL
+```{r}
+KelpBass_sizelimits_14 <- data.frame(cbind(KB_LH_POST_LBSPR.LinfMK$SPR, LHKB_PRE$SPR_14_Inch_MS_KE))
+colnames(KelpBass_sizelimits_14) <- c("2013-2021 CRFS", "14-Inch MSL Simulation (Knife-Edge Selectivity)")
+KelpBass_sizelimits_gg14<-melt(KelpBass_sizelimits_14,variable.name="Data",value.name="SPR")
+colnames(KelpBass_sizelimits_gg14)<-c("Scenario","SPR")
+
+library(scales)
+
+#VIOLIN
+ggplot(KelpBass_sizelimits_gg14,aes(Scenario,SPR, group=Scenario)) +
+  scale_color_manual(values=c("black", "red")) +
+  scale_y_continuous(limits = c(0,1), expand = c(0, 0)) +
+    annotation_custom(grob = green, xmin = -Inf, xmax = Inf, ymin = .5, ymax = 1)+
+  annotation_custom(grob = green_yellow, xmin = -Inf, xmax = Inf, ymin = .3, ymax = .6)+
+  annotation_custom(grob = yellow, xmin = -Inf, xmax = Inf, ymin = .25, ymax = .3)+
+  annotation_custom(grob = yellow_red, xmin = -Inf, xmax = Inf, ymin = 0, ymax = .25)+
+  geom_violin(draw_quantiles = c(0.25, 0.5, 0.75))+
+  geom_hline(yintercept=c(0.40,0.20),col=c("darkgreen","red"),lty=2,lwd=1.25)+
+  geom_text(aes(1.25, .20 ,label = "20% SPR", vjust = -1))+ #label horizontal line at 20% SPR
+  geom_text(aes(1.25, .40 ,label = "40% SPR", vjust = -1))+ #label horizontal line at 40% SPR
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+  ggtitle("Does the Simulated MSL Match the Data?", "Kelp Bass")+
+  theme(plot.title=element_text(hjust=0.5), plot.subtitle=element_text(hjust=0.5))+
+  scale_x_discrete(limits = c("", "2013-2021 CRFS", "14-Inch MSL Simulation (Knife-Edge Selectivity)", ""), breaks = c("2013-2021 CRFS", "14-Inch MSL Simulation (Knife-Edge Selectivity)"), expand=c(0,0), labels = label_wrap(15))
+#guides(x = guide_axis(n.dodge = 3))
+
+#ggsave("KelpBass_Stochastic_14MSL.png", width = 30, height = 20, units = "cm", dpi = 500)
+```
+
+
