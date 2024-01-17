@@ -1,0 +1,357 @@
+---
+title: "Binning Data"
+output: html_document
+date: "2023-05-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Kelp Bass 12 inch TL size limit (before size limit was changed) 2004-feb 2013
+```{r}
+KelpBass_PreMSL_FILTERED <- read.csv("~/Desktop/Organized/Data/FilteredData/KelpBass_PreMSL_FILTERED.csv")
+
+data = KelpBass_PreMSL_FILTERED
+
+#select desired columns of X (index), year, length
+data <- data[, c("X", "RECFIN_YEAR", "RECFIN_LENGTH_MM")]
+
+
+#Bin 
+agg <- data[,3] #get rid of index and year, leaves only length column
+library("LBSPR")
+#Step 1. Set up life history (this example shows the minimum param inputs...change to your fish)
+MyPars <- new("LB_pars")
+MYPars@Species <- "Kelp Bass"
+MyPars@Linf <- 698 
+MyPars@L50 <- 223
+MyPars@L95 <- 238.2
+MyPars@MK <- 2.65 
+MyPars@L_units <- "mm"
+#MyPars@fDisc <- 10
+
+
+#Step 3. Bin your data 
+#Set the bin width parameter you want to use
+binWidth <- 10
+
+#Create bins based on your binWidth
+Lbins_new<-seq(from=0, #min(mydt, na.rm=TRUE),
+               to=max(max(agg + binWidth, na.rm=TRUE), (MyPars@Linf + binWidth))*1.75,
+               by=binWidth) #need plenty of extra bins for stochastic eval
+
+#Now bin your data
+tmp<-sapply(X = 1:NCOL(agg), function(X){
+  KBIn<-agg[X:NROW(agg)]
+  KBIn=KBIn[!is.na(KBIn)]
+  hist(KBIn,Lbins_new, plot=F)$count
+})
+
+#Calculate bin mid points
+Lmids_new<-Lbins_new[1:(NROW(Lbins_new)-1)]+binWidth/2
+
+#Finally, create a matrix where the 1st column in bin mid points and each subsequent column is binned length measurements
+KBFreq_PRE<-cbind(Lmids_new,tmp)
+
+write.csv(KBFreq_PRE, "/Users/connorcoscino/Desktop/Organized/Data/Binned Data/KB_BIN_PRE.csv", row.names = FALSE)
+
+```
+
+
+#Kelp Bass 14 inch TL size limit (after size limit was changed) March 2013-2021
+```{r}
+KelpBass_PostMSL_FILTERED <- read.csv("/Users/connorcoscino/Desktop/Organized/Data/FilteredData/KelpBass_PostMSL_FILTERED.csv")
+
+data = KelpBass_PostMSL_FILTERED
+
+#select desired columns of X (index), year, length
+data <- data[, c("X", "RECFIN_YEAR", "RECFIN_LENGTH_MM")]
+
+
+#Bin 
+agg <- data[,3] #get rid of index and year, leaves only length column
+library("LBSPR")
+#Step 1. Set up life history (this example shows the minimum param inputs...change to your fish)
+MyPars <- new("LB_pars")
+MyPars@Species <- "Kelp Bass"
+MyPars@Linf <- 698 
+MyPars@L50 <- 223
+MyPars@L95 <- 238.2
+MyPars@MK <- 2.65 
+MyPars@L_units <- "mm"
+#MyPars@fDisc <- 10
+
+
+#Step 3. Bin your data 
+#Set the bin width parameter you want to use
+binWidth <- 10
+
+#Create bins based on your binWidth
+Lbins_new<-seq(from=0, #min(mydt, na.rm=TRUE),
+               to=max(max(agg + binWidth, na.rm=TRUE), (MyPars@Linf + binWidth))*1.75,
+               by=binWidth) #need plenty of extra bins for stochastic eval
+
+#Now bin your data
+tmp<-sapply(X = 1:NCOL(agg), function(X){
+  KBIn<-agg[X:NROW(agg)]
+  KBIn=KBIn[!is.na(KBIn)]
+  hist(KBIn,Lbins_new, plot=F)$count
+})
+
+#Calculate bin mid points
+Lmids_new<-Lbins_new[1:(NROW(Lbins_new)-1)]+binWidth/2
+
+#Finally, create a matrix where the 1st column in bin mid points and each subsequent column is binned length measurements
+KBFreq_POST<-cbind(Lmids_new,tmp)
+
+write.csv(KBFreq_POST, "/Users/connorcoscino/Desktop/Organized/Data/Binned Data/KB_BIN_POST.csv", row.names = FALSE)
+
+```
+
+#Barred Sand Bass 12 inch TL size limit (before size limit was changed) 2004-feb 2013
+```{r}
+SandBass_PreMSL_FILTERED <- read.csv("/Users/connorcoscino/Desktop/Organized/Data/FilteredData/SandBass_PreMSL_FILTERED.csv")
+
+data = SandBass_PreMSL_FILTERED
+
+#select desired columns of X (index), year, length
+data <- data[, c("X", "RECFIN_YEAR", "RECFIN_LENGTH_MM")]
+
+
+#Bin 
+agg <- data[,3] #get rid of index and year, leaves only length column
+library("LBSPR")
+#Step 1. Set up life history (this example shows the minimum param inputs...change to your fish)
+MyPars <- new("LB_pars")
+MyPars@Species <- "Barred Sand Bass"
+MyPars@Linf <- 606 
+MyPars@L50 <- 229
+MyPars@L95 <- 241.35
+MyPars@MK <- 2.4 
+MyPars@L_units <- "mm"
+#MyPars@fDisc <- 10
+
+
+#Step 3. Bin your data 
+#Set the bin width parameter you want to use
+binWidth <- 10
+
+#Create bins based on your binWidth
+Lbins_new<-seq(from=0, #min(mydt, na.rm=TRUE),
+               to=max(max(agg + binWidth, na.rm=TRUE), (MyPars@Linf + binWidth))*1.75,
+               by=binWidth) #need plenty of extra bins for stochastic eval
+
+#Now bin your data
+tmp<-sapply(X = 1:NCOL(agg), function(X){
+  KBIn<-agg[X:NROW(agg)]
+  KBIn=KBIn[!is.na(KBIn)]
+  hist(KBIn,Lbins_new, plot=F)$count
+})
+
+#Calculate bin mid points
+Lmids_new<-Lbins_new[1:(NROW(Lbins_new)-1)]+binWidth/2
+
+#Finally, create a matrix where the 1st column in bin mid points and each subsequent column is binned length measurements
+Freq <-cbind(Lmids_new,tmp)
+
+write.csv(Freq, "/Users/connorcoscino/Desktop/Organized/Data/Binned Data/SB_BIN_PRE.csv", row.names = FALSE)
+
+```
+
+#Barred Sand Bass 14 inch TL size limit (after size limit was changed) March 2013-2021
+```{r}
+SandBass_PostMSL_FILTERED <- read.csv("/Users/connorcoscino/Desktop/Organized/Data/FilteredData/SandBass_PostMSL_FILTERED.csv")
+
+data = SandBass_PostMSL_FILTERED 
+
+#select desired columns of X (index), year, length
+data <- data[, c("X", "RECFIN_YEAR", "RECFIN_LENGTH_MM")]
+
+
+#Bin 
+agg <- data[,3] #get rid of index and year, leaves only length column
+library("LBSPR")
+#Step 1. Set up life history (this example shows the minimum param inputs...change to your fish)
+MyPars <- new("LB_pars")
+MyPars@Species <- "Barred Sand Bass"
+MyPars@Linf <- 606 
+MyPars@L50 <- 229
+MyPars@L95 <- 241.35
+MyPars@MK <- 2.4 
+MyPars@L_units <- "mm"
+#MyPars@fDisc <- 10
+
+
+#Step 3. Bin your data 
+#Set the bin width parameter you want to use
+binWidth <- 10
+
+#Create bins based on your binWidth
+Lbins_new<-seq(from=0, #min(mydt, na.rm=TRUE),
+               to=max(max(agg + binWidth, na.rm=TRUE), (MyPars@Linf + binWidth))*1.75,
+               by=binWidth) #need plenty of extra bins for stochastic eval
+
+#Now bin your data
+tmp<-sapply(X = 1:NCOL(agg), function(X){
+  KBIn<-agg[X:NROW(agg)]
+  KBIn=KBIn[!is.na(KBIn)]
+  hist(KBIn,Lbins_new, plot=F)$count
+})
+
+#Calculate bin mid points
+Lmids_new<-Lbins_new[1:(NROW(Lbins_new)-1)]+binWidth/2
+
+#Finally, create a matrix where the 1st column in bin mid points and each subsequent column is binned length measurements
+Freq <-cbind(Lmids_new,tmp)
+
+write.csv(Freq, "/Users/connorcoscino/Desktop/Organized/Data/Binned Data/SB_BIN_POST.csv", row.names = FALSE)
+
+```
+
+###Ocean Whitefish
+```{r}
+OceanWhitefish_FILTERED <- read.csv("/Users/connorcoscino/Desktop/Organized/Data/FilteredData/OceanWhitefishFiltered.csv")
+
+data = OceanWhitefish_FILTERED 
+
+#select desired columns of X (index), year, length
+data <- data[, c("X", "RECFIN_YEAR", "RECFIN_LENGTH_MM")]
+
+
+#Bin 
+agg <- data[,3] #get rid of index and year, leaves only length column
+library("LBSPR")
+#Step 1. Set up life history (this example shows the minimum param inputs...change to your fish)
+MyPars <- new("LB_pars")
+MyPars@Species <- "Ocean Whitefish"
+#Parameters are in TL
+MyPars@Linf <- 778.74
+MyPars@L50 <- 430
+MyPars@L95 <- 513
+MyPars@MK <- 1.787
+MyPars@L_units <- "mm"
+
+#Step 3. Bin your data 
+#Set the bin width parameter you want to use
+binWidth <- 10
+
+#Create bins based on your binWidth
+Lbins_new<-seq(from=0, #min(mydt, na.rm=TRUE),
+               to=max(max(agg + binWidth, na.rm=TRUE), (MyPars@Linf + binWidth))*1.75,
+               by=binWidth) #need plenty of extra bins for stochastic eval
+
+#Now bin your data
+tmp<-sapply(X = 1:NCOL(agg), function(X){
+  KBIn<-agg[X:NROW(agg)]
+  KBIn=KBIn[!is.na(KBIn)]
+  hist(KBIn,Lbins_new, plot=F)$count
+})
+
+#Calculate bin mid points
+Lmids_new<-Lbins_new[1:(NROW(Lbins_new)-1)]+binWidth/2
+
+#Finally, create a matrix where the 1st column in bin mid points and each subsequent column is binned length measurements
+Freq <-cbind(Lmids_new,tmp)
+
+write.csv(Freq, "/Users/connorcoscino/Desktop/Organized/Data/Binned Data/OWF_BIN.csv", row.names = FALSE)
+
+```
+
+#Pacific Barracuda
+```{r}
+PacificBarracuda_FILTERED <- read.csv("/Users/connorcoscino/Desktop/Organized/Data/FilteredData/PacificBarracudaFiltered.csv")
+
+data = PacificBarracuda_FILTERED 
+
+#select desired columns of X (index), year, length
+data <- data[, c("X", "RECFIN_YEAR", "RECFIN_LENGTH_MM")]
+
+
+#Bin 
+agg <- data[,3] #get rid of index and year, leaves only length column
+library("LBSPR")
+#Step 1. Set up life history (this example shows the minimum param inputs...change to your fish)
+MyPars <- new("LB_pars")
+MyPars@Species <- "Pacific Barracuda"
+#Parameters are in TL. Fish are in TL
+MyPars@Linf <- 902.1
+MyPars@L50 <- 465 
+MyPars@L95 <- 515 
+MyPars@MK <- 1.221
+MyPars@L_units <- "mm"
+
+#Step 3. Bin your data 
+#Set the bin width parameter you want to use
+binWidth <- 20
+
+#Create bins based on your binWidth
+Lbins_new<-seq(from=0, #min(mydt, na.rm=TRUE),
+               to=max(max(agg + binWidth, na.rm=TRUE), (MyPars@Linf + binWidth))*1.75,
+               by=binWidth) #need plenty of extra bins for stochastic eval
+
+#Now bin your data
+tmp<-sapply(X = 1:NCOL(agg), function(X){
+  KBIn<-agg[X:NROW(agg)]
+  KBIn=KBIn[!is.na(KBIn)]
+  hist(KBIn,Lbins_new, plot=F)$count
+})
+
+#Calculate bin mid points
+Lmids_new<-Lbins_new[1:(NROW(Lbins_new)-1)]+binWidth/2
+
+#Finally, create a matrix where the 1st column in bin mid points and each subsequent column is binned length measurements
+Freq <-cbind(Lmids_new,tmp)
+
+write.csv(Freq, "/Users/connorcoscino/Desktop/Organized/Data/Binned Data/Barracuda_BIN.csv", row.names = FALSE)
+
+```
+
+#Olive Rockfish
+```{r}
+OliveRockfish_FILTERED <- read.csv("/Users/connorcoscino/Desktop/Organized/Data/FilteredData/OliveRockfishFiltered.csv")
+
+data = OliveRockfish_FILTERED
+
+#select desired columns of X (index), year, length
+data <- data[, c("X", "RECFIN_YEAR", "RECFIN_LENGTH_MM")]
+
+
+#Bin 
+agg <- data[,3] #get rid of index and year, leaves only length column
+library("LBSPR")
+#Step 1. Set up life history (this example shows the minimum param inputs...change to your fish)
+MyPars <- new("LB_pars")
+MyPars@Species <- "Olive Rockfish"
+#Parameters are in TL
+MyPars@Linf <- 489.5
+MyPars@L50 <- 340
+MyPars@L95 <- 385
+MyPars@MK <- .842
+MyPars@L_units <- "mm"
+
+#Step 3. Bin your data 
+#Set the bin width parameter you want to use
+binWidth <- 10
+
+#Create bins based on your binWidth
+Lbins_new<-seq(from=0, #min(mydt, na.rm=TRUE),
+               to=max(max(agg + binWidth, na.rm=TRUE), (MyPars@Linf + binWidth))*1.75,
+               by=binWidth) #need plenty of extra bins for stochastic eval
+
+#Now bin your data
+tmp<-sapply(X = 1:NCOL(agg), function(X){
+  KBIn<-agg[X:NROW(agg)]
+  KBIn=KBIn[!is.na(KBIn)]
+  hist(KBIn,Lbins_new, plot=F)$count
+})
+
+#Calculate bin mid points
+Lmids_new<-Lbins_new[1:(NROW(Lbins_new)-1)]+binWidth/2
+
+#Finally, create a matrix where the 1st column in bin mid points and each subsequent column is binned length measurements
+Freq <-cbind(Lmids_new,tmp)
+
+write.csv(Freq, "/Users/connorcoscino/Desktop/Organized/Data/Binned Data/OliveRockfish_BIN.csv", row.names = FALSE)
+
+```
