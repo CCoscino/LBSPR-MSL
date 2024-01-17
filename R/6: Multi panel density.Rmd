@@ -1,0 +1,169 @@
+---
+title: "Multi panel denisty"
+output: pdf_document
+date: "2023-02-22"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#need to first bin data
+#run binning data for plots file
+
+#Kelp Bass
+```{r}
+
+#data_KB_2004_2012
+#data_KB_2013_2021
+#simulated_KB_14Inch
+#simulated_KB_16Inch
+
+
+
+d<- rbind(data_KB_2004_2012, data_KB_2013_2021, simulated_KB_12Inch_Knife, simulated_KB_14Inch, simulated_KB_16Inch)
+
+KBMSLdens <- ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Kelp Bass")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS 2004-2012', 'CRFS 2013-2021', '12-Inch MSL Simulation', '14-Inch MSL Simulation', '16-Inch MSL Simulation'))+
+   geom_vline(aes(xintercept = 223, color = "Length at 50% Maturity"), linetype = 4)+
+  scale_color_manual(name = "", values = c("Length at 50% Maturity" = "red"))+
+    theme(plot.title=element_text(hjust=0.5, size = 14), axis.title = element_text(size=12), axis.text=element_text(size=10), legend.text = element_text(size=10), legend.title = element_text(size=12))+
+   xlim(0, 800)
+```
+
+
+#Barred Sand Bass
+```{r}
+
+d<- rbind(data_SB_2004_2012, data_SB_2013_2021, simulated_SB_12Inch_Knife, simulated_SB_14Inch, simulated_SB_16Inch)
+
+BSBMSLdens <- ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Barred Sand Bass")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c( '2004-2021 CRFS ', '2013-2021 CRFS', '12-Inch MSL Simulation ', '14-Inch MSL Simulation ', '16-Inch MSL Simulation '))+
+    geom_vline(aes(xintercept = 229, color = "Length at 50% Maturity"), linetype = 4)+
+   scale_color_manual(name = "", values = c("Length at 50% Maturity" = "red"))+
+  theme(plot.title=element_text(hjust=0.5, size = 14), axis.title = element_text(size=12), axis.text=element_text(size=10), legend.text = element_text(size=10), legend.title = element_text(size=12))+
+  xlim(0,800)
+```
+
+
+#Ocean Whitefish
+```{r}
+#####
+
+#data_OWF_2003_2021
+#simulated_OWF_12Inch
+#simulated_OWF_14Inch
+#simulated_OWF_16Inch
+#simulated_OWF_18Inch
+
+
+d <- rbind(data_OWF_2004_2021, simulated_OWF_12Inch, simulated_OWF_14Inch, simulated_OWF_16Inch, simulated_OWF_18Inch, simulated_OWF_20Inch)
+
+OWFMSLdens <- ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Ocean Whitefish")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS 2004-2021', '12-Inch MSL Simulation', '14-Inch MSL Simulation', '16-Inch MSL Simulation', '18-Inch MSL Simulation', '20-Inch MSL Simulation'))+
+    geom_vline(aes(xintercept = 430, color = "Length at 50% Maturity"), linetype = 4)+
+   scale_color_manual(name = "", values = c("Length at 50% Maturity" = "red"))+
+    theme(plot.title=element_text(hjust=0.5, size = 14), axis.title = element_text(size=12), axis.text=element_text(size=10), legend.text = element_text(size=10), legend.title = element_text(size=12))+
+  xlim(0,800)
+
+#ggsave("OWFdensPresentation.png", width = 20, height = 10, units = "cm", dpi = 500)
+```
+
+
+#Pacific barracuda
+```{r}
+
+
+d<- rbind(data_Barr_2004_2021, simulated_Barr_28Inch_knife, simulated_Barr_26Inch_knife)
+
+BARRMSLdens <- ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Pacific Barracuda")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS 2004-2021 ', '28-Inch MSL Simulation ', '26-Inch MSL Simulation '))+
+  geom_vline(aes(xintercept = 465, color = "Length at 50% Maturity"), linetype = 4)+
+   scale_color_manual(name = "", values = c("Length at 50% Maturity" = "red"))+
+   theme(plot.title=element_text(hjust=0.5, size = 14), axis.title = element_text(size=12), axis.text=element_text(size=10), legend.text = element_text(size=10), legend.title = element_text(size=12))+
+  xlim(0,1250)
+
+#ggsave("BARR_changeindist_Stochastic.png", width = 30, height = 20, units = "cm", dpi = 500)
+#ggsave("BarrdensPresentation.png", width = 20, height = 10, units = "cm", dpi = 500)
+```
+
+Olive Rockfish
+```{r}
+#####
+
+#data_ORF_2003_2021
+#simulated_ORF_12Inch
+#simulated_ORF_14Inch
+#simulated_ORF_16Inch
+
+d<- rbind(data_ORF_2004_2021, simulated_ORF_12Inch, simulated_ORF_14Inch, simulated_ORF_16Inch)
+
+OLVMSLdens <- ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Olive Rockfish")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS 2004-2021  ', '12-Inch MSL Simulation  ', '14-Inch MSL Simultaion  ', '16-Inch MSL Simulation  '))+
+  geom_vline(aes(xintercept = 340, color = "Length at 50% Maturity"), linetype = 4)+
+   scale_color_manual(name = "", values = c("Length at 50% Maturity" = "red"))+
+     theme(plot.title=element_text(hjust=0.5, size = 14), axis.title = element_text(size=12), axis.text=element_text(size=10), legend.text = element_text(size=10), legend.title = element_text(size=12))
+
+#ggsave("OLV_CV.1_changeindist.png", width = 30, height = 20, units = "cm", dpi = 500)
+#ggsave("OLIVEdensPresentation.png", width = 20, height = 10, units = "cm", dpi = 500)
+```
+
+
+```{r}
+MSLdens <- ggarrange(KBMSLdens, BSBMSLdens, OWFMSLdens, BARRMSLdens, OLVMSLdens, ncol = 2, nrow = 3)
+
+annotate_figure(MSLdens, top = text_grob("Change In Catch Distribution", color = "black", face = "bold", size = 16))
+
+#ggsave("testMSLdens.png", width = 30, height = 25, units = "cm", dpi = 500)
+
+```
+
+#just bass
+```{r}
+MSLdens_bass <- ggarrange(KBMSLdens, BSBMSLdens, ncol = 1, nrow = 2, common.legend = TRUE, legend = "right")
+
+annotate_figure(MSLdens_bass, top = text_grob("Change In Catch Distribution", color = "black", face = "bold", size = 16))
+#ggsave("testbassdensBG.png", width = 25, height = 25, units = "cm", dpi = 500, bg="white")
+
+```
+
+```{r}
+MSLdensOBO <- ggarrange(OWFMSLdens, BARRMSLdens, OLVMSLdens, ncol = 1, nrow = 3)
+
+annotate_figure(MSLdensOBO, top = text_grob("Change In Catch Distribution", color = "black", face = "bold", size = 16))
+
+#ggsave("testMSLdensOBO_BG.png", width = 20, height = 30, units = "cm", dpi = 500, bg="white")
+
+```
+

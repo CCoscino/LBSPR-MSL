@@ -1,0 +1,199 @@
+---
+title: "multi panel stoch eval"
+output: html_document
+date: "2023-02-22"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Kelp Bass
+```{r}
+KelpBass_sizelimits2 <- data.frame(cbind(KB_LH_PRE_LBSPR.LinfMK$SPR, LHKB_PRE$SPR_12_Inch_MS_KE, KB_LH_POST_LBSPR.LinfMK$SPR, LHKB_PRE$SPR_14_Inch_MS_KE, LHKB_POST$SPR_16_Inch_MS_KE))
+colnames(KelpBass_sizelimits2) <- c("2004-2012 CRFS", "12-Inch MSL Simulation", "2013-2021 CRFS", "14-Inch MSL Simulation", "16-Inch MSL Simulation")
+KelpBass_sizelimits_gg2<-melt(KelpBass_sizelimits2,variable.name="Data",value.name="SPR")
+colnames(KelpBass_sizelimits_gg2)<-c("Scenario","SPR")
+
+library(scales)
+
+#VIOLIN
+KBstoch <- ggplot(KelpBass_sizelimits_gg2,aes(Scenario,SPR, group=Scenario)) +
+  scale_color_manual(values=c("black", "red")) +
+  scale_y_continuous(limits = c(0,1), expand = c(0, 0)) +
+    annotation_custom(grob = green, xmin = -Inf, xmax = Inf, ymin = .5, ymax = 1)+
+  annotation_custom(grob = green_yellow, xmin = -Inf, xmax = Inf, ymin = .3, ymax = .6)+
+  annotation_custom(grob = yellow, xmin = -Inf, xmax = Inf, ymin = .25, ymax = .3)+
+  annotation_custom(grob = yellow_red, xmin = -Inf, xmax = Inf, ymin = 0, ymax = .25)+
+  geom_violin(draw_quantiles = c(0.25, 0.5, 0.75))+
+  geom_hline(yintercept=c(0.40,0.20),col=c("darkgreen","red"),lty=2,lwd=1.25)+
+  geom_text(aes(1.3, .20 ,label = "20% SPR", vjust = -1), size = 2.7)+ #label horizontal line at 20% SPR
+  geom_text(aes(1.3, .40 ,label = "40% SPR", vjust = -1), size = 2.7)+ #label horizontal line at 40% SPR
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+  ggtitle("Kelp Bass")+
+  theme(plot.title=element_text(hjust=0.5))+
+  scale_x_discrete(limits = c("", "2004-2012 CRFS", "12-Inch MSL Simulation", "2013-2021 CRFS", "14-Inch MSL Simulation", "16-Inch MSL Simulation", ""), breaks = c("2004-2012 CRFS", "12-Inch MSL Simulation", "2013-2021 CRFS", "14-Inch MSL Simulation", "16-Inch MSL Simulation"), expand=c(0,0), labels = label_wrap(10))
+#guides(x = guide_axis(n.dodge = 3))
+
+#ggsave("KelpBass_Stochastic_MSLsim_forpresentation.png", width = 15, height = 10, units = "cm", dpi = 500)
+```
+
+#Sand bass
+#manipulate dataframe and make plot the compares 
+```{r}
+SandBass_sizelimits2 <- data.frame(cbind(SB_LH_PRE_LBSPR.LinfMK$SPR, LHSB_PRE$SPR_12_Inch_MS_KE, SB_LH_POST_LBSPR.LinfMK$SPR, LHSB_PRE$SPR_14_Inch_MS_KE, LHSB_POST$SPR_16_Inch_MS_KE))
+colnames(SandBass_sizelimits2) <- c("*2004-2012 CRFS*", "*12-Inch MSL Simulation*", "*2013-2021 CRFS*", "*14-Inch MSL Simulation*", "*16-Inch MSL Simulation*")
+SandBass_sizelimits_gg2<-melt(SandBass_sizelimits2,variable.name="Data",value.name="SPR")
+colnames(SandBass_sizelimits_gg2)<-c("Scenario","SPR")
+
+
+
+
+library(scales)
+
+#VIOLIN
+SBstoch <- ggplot(SandBass_sizelimits_gg2,aes(Scenario,SPR, group=Scenario, color = "red")) +
+  scale_color_manual(values=c("red")) +
+  scale_y_continuous(limits = c(0,1), expand = c(0, 0)) +
+   annotation_custom(grob = green, xmin = -Inf, xmax = Inf, ymin = .5, ymax = 1)+
+  annotation_custom(grob = green_yellow, xmin = -Inf, xmax = Inf, ymin = .3, ymax = .6)+
+  annotation_custom(grob = yellow, xmin = -Inf, xmax = Inf, ymin = .25, ymax = .3)+
+  annotation_custom(grob = yellow_red, xmin = -Inf, xmax = Inf, ymin = 0, ymax = .25)+
+  geom_violin(draw_quantiles = c(0.25, 0.5, 0.75))+
+  geom_hline(yintercept=c(0.40,0.20),col=c("darkgreen","red"),lty=2,lwd=1.25)+
+  geom_text(aes(1.4, .20 ,label = "20% SPR", vjust = -1), size = 2.7, color = "black")+ #label horizontal line at 20% SPR
+  geom_text(aes(1.4, .40 ,label = "40% SPR", vjust = -1), size = 2.7, color = "black")+ #label horizontal line at 40% SPR
+   geom_text(aes(2, .1 ,label = "*", vjust = 1), size = 15, color = "black")+#add asterisk in plot
+    geom_text(aes(3, .1 ,label = "*", vjust = 1), size = 15, color = "black")+#add asterisk in plot
+  geom_text(aes(4, .1 ,label = "*", vjust = 1), size = 15, color = "black")+#add asterisk in plot
+  geom_text(aes(5, .1 ,label = "*", vjust = 1), size = 15, color = "black")+#add asterisk in plot
+  geom_text(aes(6, .1 ,label = "*", vjust = 1), size = 15, color = "black")+#add asterisk in plot
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"), plot.title=element_text(hjust=0.5), legend.position = "none")+
+  ggtitle("Barred Sand Bass")+
+  scale_x_discrete(limits = c("", "*2004-2012 CRFS*", "*12-Inch MSL Simulation*", "*2013-2021 CRFS*", "*14-Inch MSL Simulation*", "*16-Inch MSL Simulation*", ""), breaks = c("*2004-2012 CRFS*", "*12-Inch MSL Simulation*", "*2013-2021 CRFS*", "*14-Inch MSL Simulation*", "*16-Inch MSL Simulation*"), expand=c(0,0), labels = label_wrap(10))
+#guides(x = guide_axis(n.dodge = 3))#dodge x axis labels
+
+#ggsave("SandBass_Stochastic_MSLsim_forpresentation.png", width = 15, height = 10, units = "cm", dpi = 500)
+```
+
+#Ocean Whitefish
+#manipulate dataframe
+```{r}
+OWF_sizelimits <- data.frame(cbind(Ex.Spp.LBSPR.LinfMK_OWF1$SPR, LHOWF$SPR_12_Inch_MSL, LHOWF$SPR_14_Inch_MSL, LHOWF$SPR_16_Inch_MSL, LHOWF$SPR_18_Inch_MSL, LHOWF$SPR_20_Inch_MSL))
+colnames(OWF_sizelimits) <- c("2004-2021 CRFS", "12-Inch MSL Simulation", "14-Inch MSL Simulation", "16-Inch MSL Simulation", "18-Inch MSL Simulation", "20-Inch MSL Simulation")
+OWF_sizelimits_gg<-melt(OWF_sizelimits,variable.name="Data",value.name="SPR")
+colnames(OWF_sizelimits_gg)<-c("Scenario","SPR")
+
+
+
+#VIOLIN
+OWFstoch <- ggplot(OWF_sizelimits_gg,aes(Scenario,SPR, group=Scenario)) +
+  scale_color_manual(values=c("black", "red")) +
+  scale_y_continuous(limits = c(0,1), expand = c(0, 0)) +
+  annotation_custom(grob = green, xmin = -Inf, xmax = Inf, ymin = .5, ymax = 1)+
+  annotation_custom(grob = green_yellow, xmin = -Inf, xmax = Inf, ymin = .3, ymax = .6)+
+  annotation_custom(grob = yellow, xmin = -Inf, xmax = Inf, ymin = .25, ymax = .3)+
+  annotation_custom(grob = yellow_red, xmin = -Inf, xmax = Inf, ymin = 0, ymax = .25)+
+  geom_violin(draw_quantiles = c(0.25, 0.5, 0.75))+
+  geom_hline(yintercept=c(0.40,0.20),col=c("darkgreen","red"),lty=2,lwd=1.25)+
+  geom_text(aes(1.5, .20 ,label = "20% SPR", vjust = -1), size = 2.7)+ #label horizontal line at 20% SPR
+  geom_text(aes(1.5, .40 ,label = "40% SPR", vjust = -1), size = 2.7)+ #label horizontal line at 40% SPR
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+  ggtitle("Ocean Whitefish")+
+  theme(plot.title=element_text(hjust=0.5))+
+    scale_x_discrete(limits = c("", "2004-2021 CRFS", "12-Inch MSL Simulation", "14-Inch MSL Simulation", "16-Inch MSL Simulation", "18-Inch MSL Simulation", "20-Inch MSL Simulation", ""), breaks = c("2004-2021 CRFS", "12-Inch MSL Simulation", "14-Inch MSL Simulation", "16-Inch MSL Simulation", "18-Inch MSL Simulation", "20-Inch MSL Simulation"), expand=c(0,0), labels = label_wrap(10))
+#ggsave("OWF_Stochastic_MSLsim_forpresentation.png", width = 15, height = 10, units = "cm", dpi = 500)
+```
+
+#Pacific Barracuda
+```{r}
+Barracuda_sizelimits <- data.frame(cbind(Ex.Spp.LBSPR.LinfMK_Barracuda1$SPR, LHBarracuda$SPR_28_Inch_MSL_KE, LHBarracuda$SPR_26_Inch_MSL_KE))
+colnames(Barracuda_sizelimits) <- c("2004-2021 CRFS", "28-Inch MSL Simulation", "26-Inch MSL Simulation")
+Barracuda_sizelimits_gg<-melt(Barracuda_sizelimits,variable.name="Data",value.name="SPR")
+colnames(Barracuda_sizelimits_gg)<-c("Scenario","SPR")
+
+
+
+#VIOLIN
+BARRstoch <- ggplot(Barracuda_sizelimits_gg,aes(Scenario,SPR, group=Scenario)) +
+  scale_color_manual(values=c("black", "red")) +
+  scale_y_continuous(limits = c(0,1), expand = c(0, 0)) +
+  annotation_custom(grob = green, xmin = -Inf, xmax = Inf, ymin = .5, ymax = 1)+
+  annotation_custom(grob = green_yellow, xmin = -Inf, xmax = Inf, ymin = .3, ymax = .6)+
+  annotation_custom(grob = yellow, xmin = -Inf, xmax = Inf, ymin = .25, ymax = .3)+
+  annotation_custom(grob = yellow_red, xmin = -Inf, xmax = Inf, ymin = 0, ymax = .25)+
+  geom_violin(draw_quantiles = c(0.25, 0.5, 0.75))+
+  geom_hline(yintercept=c(0.40,0.20),col=c("darkgreen","red"),lty=2,lwd=1.25)+
+  geom_text(aes(1.4, .20 ,label = "20% SPR", vjust = -1), size = 2.7)+ #label horizontal line at 20% SPR
+  geom_text(aes(1.4, .40 ,label = "40% SPR", vjust = -1), size = 2.7)+ #label horizontal line at 40% SPR
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+  ggtitle("Pacific Barracuda")+
+  theme(plot.title=element_text(hjust=0.5))+
+scale_x_discrete(limits = c("", "2004-2021 CRFS", "28-Inch MSL Simulation", "26-Inch MSL Simulation", ""), breaks = c("2004-2021 CRFS", "28-Inch MSL Simulation", "26-Inch MSL Simulation"), expand=c(0,0), labels = label_wrap(10))
+  
+#ggsave("Barracuda_Stochastic_MSLsim_forpresentation.png", width = 15, height = 10, units = "cm", dpi = 500)
+```
+
+
+#Olive Rockfish
+```{r}
+OliveRF_sizelimits1 <- data.frame(cbind(Ex.Spp.LBSPR.LinfMK_Olive1$SPR, LHOliveRFCV1$SPR_12_Inch_MSL_KE,  LHOliveRFCV1$SPR_14_Inch_MSL_KE, LHOliveRFCV1$SPR_16_Inch_MSL_KE))
+colnames(OliveRF_sizelimits1) <- c("2004-2021 CRFS", "12-Inch MSL Simulation", "14-Inch MSL Simulation", "16-Inch MSL Simulation")
+OliveRF_sizelimits_gg1<-melt(OliveRF_sizelimits1,variable.name="Data",value.name="SPR")
+colnames(OliveRF_sizelimits_gg1)<-c("Scenario","SPR")
+
+
+#VIOLIN
+OLVstoch <- ggplot(OliveRF_sizelimits_gg1,aes(Scenario,SPR, group=Scenario)) +
+  scale_color_manual(values=c("black", "red")) +
+  scale_y_continuous(limits = c(0,1), expand = c(0, 0)) +
+   annotation_custom(grob = green, xmin = -Inf, xmax = Inf, ymin = .5, ymax = 1)+
+  annotation_custom(grob = green_yellow, xmin = -Inf, xmax = Inf, ymin = .3, ymax = .6)+
+  annotation_custom(grob = yellow, xmin = -Inf, xmax = Inf, ymin = .25, ymax = .3)+
+  annotation_custom(grob = yellow_red, xmin = -Inf, xmax = Inf, ymin = 0, ymax = .25)+
+  geom_violin(draw_quantiles = c(0.25, 0.5, 0.75))+
+  geom_hline(yintercept=c(0.40,0.20),col=c("darkgreen","red"),lty=2,lwd=1.25)+
+  geom_text(aes(1.3, .20 ,label = "20% SPR", vjust = -1),  size = 2.7)+ #label horizontal line at 20% SPR
+  geom_text(aes(1.3, .40 ,label = "40% SPR", vjust = -1), size = 2.7)+ #label horizontal line at 40% SPR
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.line = element_line(colour = "black"))+
+  ggtitle("Olive Rockfish")+
+  theme(plot.title=element_text(hjust=0.5))+
+scale_x_discrete(limits = c("", "2004-2021 CRFS", "12-Inch MSL Simulation", "14-Inch MSL Simulation", "16-Inch MSL Simulation", ""), breaks = c("2004-2021 CRFS", "12-Inch MSL Simulation", "14-Inch MSL Simulation", "16-Inch MSL Simulation"), expand=c(0,0), labels = label_wrap(10))
+
+#ggsave("OliveRockfish1_Stochastic_MSLsim_forpresentation.png", width = 15, height = 10, units = "cm", dpi = 500)
+```
+
+
+```{r}
+MSLsim <- ggarrange(KBstoch, SBstoch, OWFstoch, BARRstoch, OLVstoch, ncol = 2, nrow= 3)
+
+annotate_figure(MSLsim, top = text_grob("Size Limit Simulations", color = "black", face = "bold", size = 16))
+
+#ggsave("testsizelimitsimBG_final.png", width = 30, height = 35, units = "cm", dpi = 500, bg="white")
+
+```
+
+```{r}
+#MSLsim <- ggarrange(KBstoch, SBstoch, OWFstoch, BARRstoch, OLVstoch, ncol = 1, nrow= 5)
+
+#annotate_figure(MSLsim, top = text_grob("Size Limit Simulations", color = "black", face = "bold", size = 16))
+
+#ggsave("testsizelimitsim.png", width = 20, height = 50, units = "cm", dpi = 500)
+```
+
+#for presentation
+```{r}
+MSLsim <- ggarrange(KBstoch, SBstoch, OWFstoch, BARRstoch, OLVstoch, ncol = 3, nrow= 2)
+
+annotate_figure(MSLsim, top = text_grob("Size Limit Simulations", color = "black", face = "bold", size = 16))
+
+#ggsave("testsizelimitsim.2.png", width = 40, height = 20, units = "cm", dpi = 500)
+
+```
