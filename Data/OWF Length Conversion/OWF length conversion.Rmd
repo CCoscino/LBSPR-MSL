@@ -1,0 +1,78 @@
+---
+title: "CCFRP Length Conversion"
+output: pdf_document
+date: "2022-10-28"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#FORK Length to Unpinched TL
+```{r}
+CCFRP.Length.Types <- read.csv("/Volumes/NO NAME/LBSPR/Data/CCFRP Length Types.csv")
+
+OWF <- CCFRP.Length.Types[CCFRP.Length.Types$Species=="Ocean Whitefish", 3:7]
+
+
+plot(Unpinched.TL~Fork.Length, OWF)
+
+
+
+ggplot(OWF, aes(x=Fork.Length, y=Unpinched.TL)) +
+  geom_point()+
+  geom_smooth(method='lm', formula= y~x)+
+  geom_text(aes(label = "N = 24", x= 325, y = 400)) + 
+  ylab("Total Length (mm)") + 
+  xlab("Fork Length (mm)")+
+  ggtitle("Caulolatilus princeps Fork Length to Total Length Conversion")+
+  theme_bw()+ #matches theme of LBSPR figures
+  theme(plot.title=element_text(hjust=0.5),plot.subtitle=element_text(hjust=0.5))
+
+
+TL_Unpinched <- lm(Unpinched.TL~Fork.Length, OWF)
+summary(TL_Unpinched)
+abline(TL_Unpinched)
+#TL=-10.16473+1.07437*FL
+#n = 24
+
+#ggsave("OWFConversion.png", width = 30, height = 20, units = "cm", dpi = 500)
+```
+
+TL-U to FL
+```{r}
+plot(Fork.Length~Unpinched.TL, OWF)
+
+FL <- lm(Fork.Length~Unpinched.TL, OWF)
+summary(FL)
+abline(FL)
+#TL=12.04191+.92263*TL
+```
+
+TL-U to TL-P
+```{r}
+plot(Pinched.TL~Unpinched.TL, OWF)
+
+Pinched_TL <- lm(Pinched.TL~Unpinched.TL, OWF)
+summary(Pinched_TL)
+abline(Pinched_TL)
+#TL Pinched =-3.98313+1.04455* UnpinchedTL
+```
+
+
+#FORK Length to Pinched TL
+```{r}
+OWF <- CCFRP.Length.Types[CCFRP.Length.Types$Species=="Ocean Whitefish", 3:7]
+
+
+plot(Pinched.TL~Fork.Length, OWF)
+
+FL_PTL <- lm(Pinched.TL~Fork.Length, OWF)
+summary(FL_PTL)
+abline(FL_PTL)
+abline(TL_Unpinched)
+#TLP=-16.46623+1.12836*FL
+
+```
