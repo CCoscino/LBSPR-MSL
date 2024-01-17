@@ -40,39 +40,3 @@ abline(TL_Unpinched)
 
 #ggsave("OWFConversion.png", width = 30, height = 20, units = "cm", dpi = 500)
 ```
-
-TL-U to FL
-```{r}
-plot(Fork.Length~Unpinched.TL, OWF)
-
-FL <- lm(Fork.Length~Unpinched.TL, OWF)
-summary(FL)
-abline(FL)
-#TL=12.04191+.92263*TL
-```
-
-TL-U to TL-P
-```{r}
-plot(Pinched.TL~Unpinched.TL, OWF)
-
-Pinched_TL <- lm(Pinched.TL~Unpinched.TL, OWF)
-summary(Pinched_TL)
-abline(Pinched_TL)
-#TL Pinched =-3.98313+1.04455* UnpinchedTL
-```
-
-
-#FORK Length to Pinched TL
-```{r}
-OWF <- CCFRP.Length.Types[CCFRP.Length.Types$Species=="Ocean Whitefish", 3:7]
-
-
-plot(Pinched.TL~Fork.Length, OWF)
-
-FL_PTL <- lm(Pinched.TL~Fork.Length, OWF)
-summary(FL_PTL)
-abline(FL_PTL)
-abline(TL_Unpinched)
-#TLP=-16.46623+1.12836*FL
-
-```
