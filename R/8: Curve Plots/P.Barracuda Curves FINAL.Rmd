@@ -1,0 +1,364 @@
+---
+title: "Pacific Barracuda curves"
+output: html_document
+date: "2023-02-03"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##pacific barracuda
+## 2004_2021
+
+```{r}
+q25 <- quantile(LHBarracuda$FM,.25, na.rm=T)
+q75 <- quantile(LHBarracuda$FM,.75, na.rm=T)
+dens <- density(LHBarracuda$FM, na.rm = T)
+df.dens <- data.frame(x = dens$x, y = dens$y)
+
+
+gg.pb2004_2021 <- ggplot()+
+ # scale_color_manual(values = c("red", "blue"))+
+  ggtitle("2004-2021")+
+  ylab("Proportion")+
+  xlab("Relative Fishing Mortality \n(F/M)")+
+  theme_bw()+
+  guides(color=guide_legend(title=""))+
+theme(plot.title = element_text(size = 16, face = "bold", hjust = .5),
+  axis.text=element_text(size=12),
+          axis.title=element_text(size=14,face="bold"), 
+		  legend.position="top", legend.text=element_text(size=12)) +
+		  ggplot2::ylim(0, 1) + 
+		    #ggplot2::xlim(0, 4)+ #changing limits messes up the density distribution
+  coord_cartesian(xlim=c(0, 4))+
+  scale_color_manual(labels = c('SPR', 'Relative Yield'), values = c("red", "blue"))+
+  geom_density(aes(x=LHBarracuda$FM, fill = "F/M Density Distribution"), alpha = .2, color = "grey")+
+  labs(fill='')+
+  scale_fill_manual(values = c("grey"))+
+  geom_area(data = subset(df.dens, x >= q25 & x <= q75), 
+              aes(x=x,y=y), fill = 'grey', alpha = .4)+
+  geom_hline(yintercept=c(0.40,0.20),col=c("darkgreen","red"),lty=2,lwd=.5)+
+  geom_vline(xintercept=1.32, col = "black", lty = 3, lwd = .5)+ #median
+   geom_text(size = 4, aes(0.05, .20 ,label = "20%", hjust = 1.0, vjust=-1), check_overlap = T)+ #label horizontal line at 20% SPR
+  geom_text(size = 4, aes(0.05, .40 ,label = "40%", hjust = 1.0, vjust = -1), check_overlap = T)+ #label horizontal line at 40% SPR
+  geom_text(size = 3.5, aes(0.481, 0 ,label = "25th Percentile", vjust = 1.25), check_overlap = T)+
+  geom_text(size = 3.5, aes(2.41, 0 ,label = "75th Percentile", vjust = 1.25), check_overlap = T)+
+    geom_text(size = 3.5, aes(1.33, 0 ,label = "Median", vjust = 1.25, fontface="bold"), check_overlap = T)
+
+
+
+for(i in 1:nrow(LHBarracuda)){
+    if(is.na(LHBarracuda$FM[i])){
+    next #Skip lines with FM = NA
+      }
+    #for each value of FM, put into sim
+KBPars <- new("LB_pars")
+KBPars@Species <- "Pacific Barracuada"
+
+KBPars@Linf <- LHBarracuda$Linf[i]
+KBPars@L50 <- LHBarracuda$L50[i]
+KBPars@L95 <- LHBarracuda$L95[i]
+KBPars@MK <- LHBarracuda$M_k[i]
+KBPars@L_units <- "mm"
+KBPars@SL50 <-  842.03
+KBPars@SL95 <- 983.79
+KBPars@BinWidth <- 20 
+KBPars@FM <- LHBarracuda$FM[i]
+KBPars@BinMax <- 1800
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_curve <- LBSPRsim(KBPars)
+
+
+
+
+
+curves <- calcCurves(MySim_curve) #calcCurves for each set of parameter values
+   
+library("tidyverse")
+curves2 <- curves %>%
+  select(FM, SPR, Yield) %>%
+  gather(key = "variable", value = "value", -FM)
+
+  gg.pb2004_2021 <- gg.pb2004_2021 + geom_line(aes_q(x=curves2$FM, y=curves2$value, color = curves2$variable), alpha = .05)
+          
+
+}
+
+```
+
+```{r}
+
+#add prior lines
+KBPars <- new("LB_pars")
+KBPars@Species <- "Pacific Barracuda"
+
+KBPars@Linf <- 902.1
+KBPars@L50 <- 465
+KBPars@L95 <- 515
+KBPars@MK <- 1.221
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 842.03
+KBPars@SL95 <- 983.79
+KBPars@BinWidth <- 20 
+KBPars@FM <- 1.32
+KBPars@BinMax <- 1800
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_curve_median <- LBSPRsim(KBPars)
+#MySim_SandBass_12_curve_median@SPR#
+
+PBcurves <- calcCurves(MySim_curve_median) #calcCurves for each set of parameter values
+   
+  gg.pb2004_2021 <- gg.pb2004_2021 + geom_line(aes(x=PBcurves$FM, y=PBcurves$Yield), color = "darkblue", alpha = 1, size= 1.5)+
+    geom_line(aes(x=PBcurves$FM, y=PBcurves$SPR), color="darkred", alpha = 1, size = 1.5)
+
+  
+
+```
+
+
+
+
+
+
+#####
+
+##pacific barracuda
+## 28 inch knife edge MSL
+
+```{r}
+q25 <- quantile(LHBarracuda$FM,.25, na.rm=T)
+q75 <- quantile(LHBarracuda$FM,.75, na.rm=T)
+dens <- density(LHBarracuda$FM, na.rm = T)
+df.dens <- data.frame(x = dens$x, y = dens$y)
+
+
+gg.pb28 <- ggplot()+
+ # scale_color_manual(values = c("red", "blue"))+
+  ggtitle("28-Inch MSL Simulation")+
+  ylab("Proportion")+
+  xlab("Relative Fishing Mortality \n(F/M)")+
+  theme_bw()+
+  guides(color=guide_legend(title=""))+
+theme(plot.title = element_text(size = 16, face = "bold", hjust = .5),
+  axis.text=element_text(size=12),
+          axis.title=element_text(size=14,face="bold"), 
+		  legend.position="top", legend.text=element_text(size=12)) +
+		  ggplot2::ylim(0, 1) + 
+		    #ggplot2::xlim(0, 4)+ #changing limits messes up the density distribution
+  coord_cartesian(xlim=c(0, 4))+
+  scale_color_manual(labels = c('SPR', 'Relative Yield'), values = c("red", "blue"))+
+  geom_density(aes(x=LHBarracuda$FM, fill = "F/M Density Distribution"), alpha = .2, color = "grey")+
+  labs(fill='')+
+  scale_fill_manual(values = c("grey"))+
+  geom_area(data = subset(df.dens, x >= q25 & x <= q75), 
+              aes(x=x,y=y), fill = 'grey', alpha = .4)+
+  geom_hline(yintercept=c(0.40,0.20),col=c("darkgreen","red"),lty=2,lwd=.5)+
+  geom_vline(xintercept=1.32, col = "black", lty = 3, lwd = .5)+ #median
+  #geom_vline(xintercept=c(.96, 1.78), col = "black", lty = 3, lwd = .5)+
+ geom_text(size = 4, aes(0.05, .20 ,label = "20%", hjust = 1.0, vjust=-1), check_overlap = T)+ #label horizontal line at 20% SPR
+  geom_text(size = 4, aes(0.05, .40 ,label = "40%", hjust = 1.0, vjust = -1), check_overlap = T)+ #label horizontal line at 40% SPR
+  geom_text(size = 3.5, aes(0.490, 0 ,label = "25th Percentile", vjust = 1.25), check_overlap = T)+
+  geom_text(size = 3.5, aes(2.36, 0 ,label = "75th Percentile", vjust = 1.25), check_overlap = T)+
+  #geom_text(size = 3, aes(1.32, 0.05 ,label = "Median", vjust = 1.5), check_overlap = T, angle = 90) #move slightly off median so vline doesnt ovelap text
+      geom_text(size = 3.5, aes(1.33, 0 ,label = "Median", vjust = 1.25, fontface="bold"), check_overlap = T)
+
+
+for(i in 1:nrow(LHBarracuda)){
+    if(is.na(LHBarracuda$FM[i])){
+    next #Skip lines with FM = NA
+      }
+    #for each value of FM, put into sim
+KBPars <- new("LB_pars")
+KBPars@Species <- "Pacific Barracuada"
+
+KBPars@Linf <- LHBarracuda$Linf[i]
+KBPars@L50 <- LHBarracuda$L50[i]
+KBPars@L95 <- LHBarracuda$L95[i]
+KBPars@MK <- LHBarracuda$M_k[i]
+KBPars@L_units <- "mm"
+KBPars@SL50 <-  711
+KBPars@SL95 <- 712
+KBPars@BinWidth <- 20 
+KBPars@FM <- LHBarracuda$FM[i]
+KBPars@BinMax <- 1800
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_curve <- LBSPRsim(KBPars)
+
+curves <- calcCurves(MySim_curve) #calcCurves for each set of parameter values
+   
+library("tidyverse")
+curves2 <- curves %>%
+  select(FM, SPR, Yield) %>%
+  gather(key = "variable", value = "value", -FM)
+
+  gg.pb28 <- gg.pb28 + geom_line(aes_q(x=curves2$FM, y=curves2$value, color = curves2$variable), alpha = .05)
+          
+
+}
+#print(gg)
+```
+
+```{r}
+
+#add prior lines
+KBPars <- new("LB_pars")
+KBPars@Species <- "Pacific Barracuda"
+
+KBPars@Linf <- 902.1
+KBPars@L50 <- 465
+KBPars@L95 <- 515
+KBPars@MK <- 1.221
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 711
+KBPars@SL95 <- 712
+KBPars@BinWidth <- 20 
+KBPars@FM <- 1.32
+KBPars@BinMax <- 1800
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_curve_median <- LBSPRsim(KBPars)
+#MySim_SandBass_12_curve_median@SPR#
+
+PBcurves28 <- calcCurves(MySim_curve_median) #calcCurves for each set of parameter values
+   
+  gg.pb28 <- gg.pb28 + geom_line(aes(x=PBcurves28$FM, y=PBcurves28$Yield), color = "darkblue", alpha = 1, size= 1.5)+
+    geom_line(aes(x=PBcurves28$FM, y=PBcurves28$SPR), color="darkred", alpha = 1, size = 1.5)
+
+
+```
+
+
+##pacific barracuda
+## 26 inch knife edge MSL
+
+```{r}
+q25 <- quantile(LHBarracuda$FM,.25, na.rm=T)
+q75 <- quantile(LHBarracuda$FM,.75, na.rm=T)
+dens <- density(LHBarracuda$FM, na.rm = T)
+df.dens <- data.frame(x = dens$x, y = dens$y)
+
+
+gg.pb26 <- ggplot()+
+ # scale_color_manual(values = c("red", "blue"))+
+  ggtitle("26-Inch MSL Simulation")+
+  ylab("Proportion")+
+  xlab("Relative Fishing Mortality \n(F/M)")+
+  theme_bw()+
+  guides(color=guide_legend(title=""))+
+theme(plot.title = element_text(size = 16, face = "bold", hjust = .5),
+  axis.text=element_text(size=12),
+          axis.title=element_text(size=14,face="bold"), 
+		  legend.position="top", legend.text=element_text(size=12)) +
+		  ggplot2::ylim(0, 1) + 
+		    #ggplot2::xlim(0, 4)+ #changing limits messes up the density distribution
+  coord_cartesian(xlim=c(0, 4))+
+  scale_color_manual(labels = c('SPR', 'Relative Yield'), values = c("red", "blue"))+
+  geom_density(aes(x=LHBarracuda$FM, fill = "F/M Density Distribution"), alpha = .2, color = "grey")+
+  labs(fill='')+
+  scale_fill_manual(values = c("grey"))+
+  geom_area(data = subset(df.dens, x >= q25 & x <= q75), 
+              aes(x=x,y=y), fill = 'grey', alpha = .4)+
+  geom_hline(yintercept=c(0.40,0.20),col=c("darkgreen","red"),lty=2,lwd=.5)+
+  geom_vline(xintercept=1.32, col = "black", lty = 3, lwd = .5)+ #median
+  #geom_vline(xintercept=c(.96, 1.78), col = "black", lty = 3, lwd = .5)+
+   geom_text(size = 4, aes(0.05, .20 ,label = "20%", hjust = 1.0, vjust=-1), check_overlap = T)+ #label horizontal line at 20% SPR
+  geom_text(size = 4, aes(0.05, .40 ,label = "40%", hjust = 1.0, vjust = -1), check_overlap = T)+ #label horizontal line at 40% SPR
+  geom_text(size = 3.5, aes(0.490, 0 ,label = "25th Percentile", vjust = 1.25), check_overlap = T)+
+  geom_text(size = 3.5, aes(2.36, 0 ,label = "75th Percentile", vjust = 1.25), check_overlap = T)+
+  #geom_text(size = 3, aes(1.32, 0.05 ,label = "Median", vjust = 1.5), check_overlap = T, angle = 90) #move slightly off median so vline doesnt ovelap text
+      geom_text(size = 3.5, aes(1.33, 0 ,label = "Median", vjust = 1.25, fontface="bold"), check_overlap = T)
+
+
+for(i in 1:nrow(LHBarracuda)){
+    if(is.na(LHBarracuda$FM[i])){
+    next #Skip lines with FM = NA
+      }
+    #for each value of FM, put into sim
+KBPars <- new("LB_pars")
+KBPars@Species <- "Pacific Barracuada"
+
+KBPars@Linf <- LHBarracuda$Linf[i]
+KBPars@L50 <- LHBarracuda$L50[i]
+KBPars@L95 <- LHBarracuda$L95[i]
+KBPars@MK <- LHBarracuda$M_k[i]
+KBPars@L_units <- "mm"
+KBPars@SL50 <-  660
+KBPars@SL95 <- 661
+KBPars@BinWidth <- 20 
+KBPars@FM <- LHBarracuda$FM[i]
+KBPars@BinMax <- 1800
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_curve <- LBSPRsim(KBPars)
+
+
+
+
+
+curves <- calcCurves(MySim_curve) #calcCurves for each set of parameter values
+   
+library("tidyverse")
+curves2 <- curves %>%
+  select(FM, SPR, Yield) %>%
+  gather(key = "variable", value = "value", -FM)
+
+  gg.pb26 <- gg.pb26 + geom_line(aes_q(x=curves2$FM, y=curves2$value, color = curves2$variable), alpha = .05)
+          
+
+}
+#print(gg)
+```
+
+```{r}
+
+#add prior lines
+KBPars <- new("LB_pars")
+KBPars@Species <- "Pacific Barracuda"
+
+KBPars@Linf <- 902.1
+KBPars@L50 <- 465
+KBPars@L95 <- 515
+KBPars@MK <- 1.221
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 660
+KBPars@SL95 <- 661
+KBPars@BinWidth <- 20 
+KBPars@FM <- 1.32
+KBPars@BinMax <- 1800
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_curve_median <- LBSPRsim(KBPars)
+#MySim_SandBass_12_curve_median@SPR#
+
+PBcurves26 <- calcCurves(MySim_curve_median) #calcCurves for each set of parameter values
+   
+  gg.pb26 <- gg.pb26 + geom_line(aes(x=PBcurves26$FM, y=PBcurves26$Yield), color = "darkblue", alpha = 1, size= 1.5)+
+    geom_line(aes(x=PBcurves26$FM, y=PBcurves26$SPR), color="darkred", alpha = 1, size = 1.5)
+
+  
+  
+```
+
+
+
+```{r}
+PB.curves <- ggarrange(gg.pb2004_2021, gg.pb28, gg.pb26, ncol = 2, nrow = 2, common.legend = TRUE, legend = "top")
+
+annotate_figure(PB.curves, top = text_grob("SPR and Relative Yield Response to Varying Relative Fishing Mortality \n Pacific Barracuda", color = "black", face = "bold", size = 18))
+
+ggsave("PBcurvesFINAL.png", width = 16, height = 14, units = "in", dpi = 500, bg = "white")
+
+```
+
