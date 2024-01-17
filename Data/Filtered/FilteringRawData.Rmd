@@ -1,0 +1,252 @@
+---
+title: "Filtering Raw Data"
+output: html_document
+date: "2023-05-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Kelp Bass 12 inch TL size limit (before size limit was changed) 2004-feb 2013
+```{r}
+#Kelp Bass Pre size limit change
+
+KelpBass_PreMSL <- read.csv("~/Desktop/Organized/Data/RAW/KelpBass2004_feb2013.csv")
+
+data <- KelpBass_PreMSL 
+
+#Only BIO samples (CRFS began in 2004)
+data <- data[data$SOURCE_CODE=="BIO", ]
+
+#get rid of records outside max possible length-------
+data<- data[data$IS_AGENCY_LENGTH_WITHIN_MAX==TRUE, ]
+
+#remove lengths smaller than 100mm to filter out misreported data
+data <- data[!data$RECFIN_LENGTH_MM < 100, ]
+
+#get rid of NAs
+data$RECFIN_LENGTH_MM <- as.numeric(as.character(data$RECFIN_LENGTH_MM)) #creates NAs from unknowns
+data <- data[!is.na(data$RECFIN_LENGTH_MM ), ] #get rid of rows that have an NA in length column
+
+#get rid of column X
+data <- data[,-c(1)]
+
+
+#THIS DATA IS IN FORK LENGTH
+#converting from FL to TL using Love et al, 1996.  This equation appears to be in cm, so we must convert to cm
+data$RECFIN_LENGTH_MM <- ((data$RECFIN_LENGTH_MM/10)*1.01) + .83
+
+#convert back to mm
+data$RECFIN_LENGTH_MM <- (data$RECFIN_LENGTH_MM*10) 
+
+#round lengths to nearest mm
+data$RECFIN_LENGTH_MM <- round(data$RECFIN_LENGTH_MM)
+
+write.csv(data, "/Users/connorcoscino/Desktop/Organized/Data/FilteredData/KelpBass_PreMSL_FILTERED.csv")
+
+```
+
+
+Kelp Bass 14 inch TL size limit (after size limit was changed) March 2013-2021
+```{r}
+#Kelp Bass POST size limit change
+
+KelpBass_PostMSL <- read.csv("~/Desktop/Organized/Data/RAW/KelpBassMarch2013_2021.csv")
+
+data <- KelpBass_PostMSL 
+
+#Only BIO samples
+data <- data[data$SOURCE_CODE=="BIO", ]
+
+#get rid of records outside max possible length-------
+data<- data[data$IS_AGENCY_LENGTH_WITHIN_MAX==TRUE, ]
+
+#remove lengths smaller than 100mm to filter out misreported data
+data <- data[!data$RECFIN_LENGTH_MM < 100, ]
+
+#get rid of NAs
+data$RECFIN_LENGTH_MM <- as.numeric(as.character(data$RECFIN_LENGTH_MM)) #creates NAs from unknowns
+data <- data[!is.na(data$RECFIN_LENGTH_MM ), ] #get rid of rows that have an NA in length column
+
+#get rid of column X
+data <- data[,-c(1)]
+
+#THIS DATA IS IN FORK LENGTH
+#converting from FL to TL using Love et al, 1996.  This equation appears to be in cm, so we must convert to cm
+data$RECFIN_LENGTH_MM <- ((data$RECFIN_LENGTH_MM/10)*1.01) + .83
+
+#convert back to mm
+data$RECFIN_LENGTH_MM <- (data$RECFIN_LENGTH_MM*10) 
+
+#round lengths to nearest mm
+data$RECFIN_LENGTH_MM <- round(data$RECFIN_LENGTH_MM)
+
+write.csv(data, "/Users/connorcoscino/Desktop/Organized/Data/FilteredData/KelpBass_PostMSL_FILTERED.csv")
+
+```
+
+
+Barred Sand Bass 12 inch TL size limit (before size limit was changed) 2004-feb 2013
+```{r}
+SandBass_PreMSL <- read.csv("~/Desktop/Organized/Data/RAW/SandBass2004_feb2013.csv")
+
+data <- SandBass_PreMSL 
+
+#Only BIO samples
+data <- data[data$SOURCE_CODE=="BIO", ]
+
+#get rid of records outside max possible length-------
+data<- data[data$IS_AGENCY_LENGTH_WITHIN_MAX==TRUE, ]
+
+#remove lengths smaller than 100mm to filter out misreported data
+data <- data[!data$RECFIN_LENGTH_MM < 100, ]
+
+#get rid of NAs
+data$RECFIN_LENGTH_MM <- as.numeric(as.character(data$RECFIN_LENGTH_MM)) #creates NAs from unknowns
+data <- data[!is.na(data$RECFIN_LENGTH_MM ), ] #get rid of rows that have an NA in length column
+
+#get rid of column X
+data <- data[,-c(1)]
+
+#converting from FL to TL using Love et al, 1996.  This equation is in cm, so we must convert to cm from mm
+data$RECFIN_LENGTH_MM <- ((data$RECFIN_LENGTH_MM/10)*1.05) + .46
+#convert back to mm
+data$RECFIN_LENGTH_MM <- (data$RECFIN_LENGTH_MM*10) 
+#round lengths to nearest mm
+data$RECFIN_LENGTH_MM <- round(data$RECFIN_LENGTH_MM)
+
+write.csv(data, "/Users/connorcoscino/Desktop/Organized/Data/FilteredData/SandBass_PreMSL_FILTERED.csv")
+```
+
+
+
+Barred Sand Bass 14 inch TL size limit (after size limit was changed) March 2013-2021
+```{r}
+SandBass_PostMSL <- read.csv("~/Desktop/Organized/Data/RAW/SandBassMarch2013_2021.csv")
+
+data <- SandBass_PostMSL 
+
+#Only BIO samples
+data <- data[data$SOURCE_CODE=="BIO", ]
+
+#get rid of records outside max possible length-------
+data<- data[data$IS_AGENCY_LENGTH_WITHIN_MAX==TRUE, ]
+
+#remove lengths smaller than 100mm to filter out misreported data
+data <- data[!data$RECFIN_LENGTH_MM < 100, ]
+
+#get rid of NAs
+data$RECFIN_LENGTH_MM <- as.numeric(as.character(data$RECFIN_LENGTH_MM)) #creates NAs from unknowns
+data <- data[!is.na(data$RECFIN_LENGTH_MM ), ] #get rid of rows that have an NA in length column
+
+#get rid of column X
+data <- data[,-c(1)]
+
+#converting from FL to TL using Love et al, 1996.  This equation is in cm, so we must convert to cm from mm
+data$RECFIN_LENGTH_MM <- ((data$RECFIN_LENGTH_MM/10)*1.05) + .46
+#convert back to mm
+data$RECFIN_LENGTH_MM <- (data$RECFIN_LENGTH_MM*10) 
+#round lengths to nearest mm
+data$RECFIN_LENGTH_MM <- round(data$RECFIN_LENGTH_MM)
+
+write.csv(data, "/Users/connorcoscino/Desktop/Organized/Data/FilteredData/SandBass_PostMSL_FILTERED.csv")
+
+```
+
+
+#Ocean Whitefish
+```{r}
+OceanWhitefish <- read.csv("~/Desktop/Organized/Data/RAW/OceanWhitefish.csv")
+data <- OceanWhitefish
+
+#use only crfs samples
+data<-data[data$SOURCE_CODE=="BIO", ]
+
+
+#get rid of records outside max possible length-------
+data <- data[data$IS_AGENCY_LENGTH_WITHIN_MAX==TRUE, ]
+
+
+#only lengths longer than 100mm
+data <- data[data$RECFIN_LENGTH_MM > 100, ]
+
+data$RECFIN_LENGTH_MM <- as.numeric(as.character(data$RECFIN_LENGTH_MM)) #creates NAs from unknowns
+data <- data[!is.na(data$RECFIN_LENGTH_MM ), ] #get rid of rows that have an NA in length column
+
+
+#get rid of column X
+data <- data[,-c(1)]
+
+#Using conversion made from CCFRP data
+data$RECFIN_LENGTH_MM <- ((data$RECFIN_LENGTH_MM)*1.07437) - 10.16473 #TL(mm) = -10.16473 + 1.07437*FL
+
+#round lengths to nearest mm
+data$RECFIN_LENGTH_MM <- round(data$RECFIN_LENGTH_MM)
+
+write.csv(data, "/Users/connorcoscino/Desktop/Organized/Data/FilteredData/OceanWhitefishFiltered.csv")
+```
+
+#Pacific Barracuda
+```{r}
+Barracuda <- read.csv("~/Desktop/Organized/Data/RAW/PacificBarracuda.csv")
+
+data <- Barracuda
+
+
+#use only crfs samples
+data<-data[data$SOURCE_CODE=="BIO", ]
+
+#get rid of records outside max possible length-------
+data <- data[data$IS_AGENCY_LENGTH_WITHIN_MAX==TRUE, ]
+
+#remove lengths smaller than 300mm to filter out misreported data
+data <- data[!data$RECFIN_LENGTH_MM < 300, ]
+
+data$RECFIN_LENGTH_MM <- as.numeric(as.character(data$RECFIN_LENGTH_MM)) #creates NAs from unknowns
+data <- data[!is.na(data$RECFIN_LENGTH_MM ), ] #get rid of rows that have an NA in length column
+
+#get rid of column X
+data <- data[,-c(1)]
+
+#convert from FL to TL using fishbase eqn
+data$RECFIN_LENGTH_MM <- ((data$RECFIN_LENGTH_MM)*1.077)
+#round lengths to nearest mm
+data$RECFIN_LENGTH_MM <- round(data$RECFIN_LENGTH_MM)
+
+write.csv(data, "/Users/connorcoscino/Desktop/Organized/Data/FilteredData/PacificBarracudaFiltered.csv")
+
+```
+
+
+#Olive Rockfish
+```{r}
+OliveRF <- read.csv("~/Desktop/Organized/Data/RAW/OliveRockfish.csv")
+
+data <- OliveRF
+
+#use only crfs samples
+data<-data[data$SOURCE_CODE=="BIO", ]
+
+
+#get rid of records outside max possible length-------
+data <-data[data$IS_AGENCY_LENGTH_WITHIN_MAX==TRUE, ]
+
+#only lengths longer than 100mm
+data <- data[data$RECFIN_LENGTH_MM > 100, ]
+
+data$RECFIN_LENGTH_MM <- as.numeric(as.character(data$RECFIN_LENGTH_MM)) #creates NAs from unknowns
+data <- data[!is.na(data$RECFIN_LENGTH_MM ), ] #get rid of rows that have an NA in length column
+
+#get rid of column X
+data <- data[,-c(1)]
+
+#convert from FL to TL using Echeverria and Lenarz 1984
+data$RECFIN_LENGTH_MM <- (data$RECFIN_LENGTH_MM*1.029)+1.419
+#round lengths to nearest mm
+data$RECFIN_LENGTH_MM <- round(data$RECFIN_LENGTH_MM)
+
+
+write.csv(data, "/Users/connorcoscino/Desktop/Organized/Data/FilteredData/OliveRockfishFiltered.csv")
+```
+
