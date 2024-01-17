@@ -1,0 +1,471 @@
+---
+title: "OWF Size Limit Sim Plots"
+output: pdf_document
+date: "2022-12-06"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+###Check Yields
+
+####Simulate current pop
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Ocean Whitefish"
+
+KBPars@Linf <- 779
+KBPars@L50 <- 430
+KBPars@L95 <- 513
+KBPars@MK <- 1.783
+
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 256.61
+KBPars@SL95 <- 303.46
+KBPars@SPR <- 0.054
+KBPars@BinWidth <- 10
+#KBPars@FM <- 2.09
+
+KBPars@BinMax <- 1000
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_OWF_2003_2021 <- LBSPRsim(KBPars)
+MySim_OWF_2003_2021@SPR
+MySim_OWF_2003_2021@FM #2.07
+calcCurves(MySim_OWF_2003_2021)
+```
+
+###Now Plots###
+```{r}
+quantile(LHOWF$SPR_12_Inch_MSL, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T) #median = 0.07805276
+quantile(LHOWF$SPR_14_Inch_MSL, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T)
+#median = 0.12287841
+quantile(LHOWF$SPR_16_Inch_MSL, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T)
+#median = 0.18972578
+quantile(LHOWF$SPR_18_Inch_MSL, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T)
+#median = 0.28557373
+
+####FM
+quantile(LHOWF$FM, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T)
+#median = 2.07
+```
+
+
+###Simulate 12 inch size limit (305 mm) using median SPR =
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "OWF"
+
+KBPars@Linf <- 779
+KBPars@L50 <- 430
+KBPars@L95 <- 513
+KBPars@MK <- 1.787
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 305
+KBPars@SL95 <- 306
+KBPars@BinWidth <- 10
+#KBPars@FM <- 2.09
+KBPars@SPR<- 0.078
+KBPars@BinMax <- 1000
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_OWF_12Inch <- LBSPRsim(KBPars)
+MySim_OWF_12Inch@SPR
+MySim_OWF_12Inch@FM #2.07
+calcCurves(MySim_OWF_12Inch)
+plotSim(MySim_OWF_12Inch)
+plotSim(MySim_OWF_12Inch, type="len.freq")
+plotSim(MySim_OWF_12Inch, type="yield.curve")
+
+```
+density plot
+```{r}
+#####
+#using midpoint length bins and PLength to create data frame of density in each length bin
+
+#MySim_OWF_12Inch@LMids #size bins
+#MySim_OWF_12Inch@pLCatch #proportion in each bin
+
+simulated_prop <- MySim_OWF_12Inch@pLCatch[,1]
+mids <- MySim_OWF_12Inch@LMids
+
+simulated_OWF_12Inch <- data.frame(mids, simulated_prop)
+
+#######
+#bin data
+newdf <- data.frame(OWFFreq)
+sum(newdf$V2)
+
+prop <- newdf$V2/(sum(newdf$V2))
+newdf$prop <- prop
+
+colnames(newdf)[1] <- c("mids")
+
+data_OWF_2004_2021 <- newdf[, c("mids", "prop")]
+
+####
+#fill by group names
+data_OWF_2004_2021$name <- "data1"
+simulated_OWF_12Inch$name <- "simulated2"
+
+#change names of both prop columns before binding so they match
+names(data_OWF_2004_2021)[2] <- "prop"
+names(simulated_OWF_12Inch)[2] <- "prop"
+
+d<- rbind(data_OWF_2004_2021, simulated_OWF_12Inch)
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Change in Catch Distribution", "Ocean Whitefish: Simulated 12 Inch Minimum Size Limit")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS 2003-2021', '12 Inch MSL Simulation'))+
+  geom_vline(aes(xintercept = 305, color = "305 mm (12 Inches)"), linetype = 4)+
+   scale_color_manual(name = "Minimum Size Limit", values = c("305 mm (12 Inches)" = "blue"))
+```
+
+##Simulate 14 inch size limit (356 mm) using median SPR = 0.12287841
+
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "OWF"
+KBPars@Linf <- 779
+KBPars@L50 <- 430
+KBPars@L95 <- 513
+KBPars@MK <- 1.787
+
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 356
+KBPars@SL95 <- 357
+KBPars@BinWidth <- 10
+#KBPars@FM <- 2.09
+KBPars@SPR <- 0.123
+KBPars@BinMax <- 1000
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+
+MySim_OWF_14Inch <- LBSPRsim(KBPars)
+MySim_OWF_14Inch@SPR
+MySim_OWF_14Inch@FM #2.07
+calcCurves(MySim_OWF_14Inch)
+plotSim(MySim_OWF_14Inch)
+plotSim(MySim_OWF_14Inch, type="len.freq")
+plotSim(MySim_OWF_14Inch, type="yield.curve")
+```
+
+density plot
+```{r}
+#####
+#using midpoint length bins and PLength to create data frame of density in each length bin
+
+#MySim_OWF_14Inch@LMids #size bins
+#MySim_OWF_14Inch@pLCatch #proportion in each bin
+
+simulated_prop <- MySim_OWF_14Inch@pLCatch[,1]
+mids <- MySim_OWF_14Inch@LMids
+
+simulated_OWF_14Inch <- data.frame(mids, simulated_prop)
+
+#######
+#aggregate already binned
+#data_OWF_2003_2021
+
+####
+#if trying to fill by group names
+simulated_OWF_14Inch$name <- "simulated3"
+
+#change names of both prop columns before binding so they match
+
+names(simulated_OWF_14Inch)[2] <- "prop"
+
+
+
+d<- rbind(data_OWF_2004_2021, simulated_OWF_14Inch)
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Change in Catch Distrubtion", "Ocean Whitefish: Simulated 14 Inch Minimum Size Limit")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS 2003-2021', '14 Inch MSL Simulation'))+
+  geom_vline(aes(xintercept = 356, color = "356 mm (14 Inches)"), linetype = 4)+
+   scale_color_manual(name = "Minimum Size Limit", values = c("356 mm (14 Inches)" = "blue"))
+```
+
+##Simulate 16 inch (406mm) MSL using median SPR = 0.18972578
+
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "OWF"
+#Parameters are in FL
+KBPars@Linf <- 779
+KBPars@L50 <- 430
+KBPars@L95 <- 513
+KBPars@MK <- 1.783
+
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 406
+KBPars@SL95 <- 407
+KBPars@BinWidth <- 10
+#KBPars@FM <- 2.09
+KBPars@SPR <- 0.190
+KBPars@BinMax <- 1000
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_OWF_16Inch <- LBSPRsim(KBPars)
+MySim_OWF_16Inch@SPR
+MySim_OWF_16Inch@FM #2.07
+calcCurves(MySim_OWF_16Inch)
+plotSim(MySim_OWF_16Inch)
+plotSim(MySim_OWF_16Inch, type="len.freq")
+plotSim(MySim_OWF_16Inch, type="yield.curve")
+
+```
+
+
+density plot
+```{r}
+#####
+#using midpoint length bins and PLength to create data frame of density in each length bin
+
+#MySim_OWF_16Inch@LMids #size bins
+#MySim_OWF_16Inch@pLCatch #proportion in each bin
+
+simulated_prop <- MySim_OWF_16Inch@pLCatch[,1]
+mids <- MySim_OWF_16Inch@LMids
+
+simulated_OWF_16Inch <- data.frame(mids, simulated_prop)
+
+#######
+#aggregate already binned
+#data_OWF_2003_2021
+
+
+####
+#fill by group names
+simulated_OWF_16Inch$name <- "simulated4"
+
+#change names of both prop columns before binding so they match
+
+names(simulated_OWF_16Inch)[2] <- "prop"
+
+
+
+d<- rbind(data_OWF_2004_2021, simulated_OWF_16Inch)
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Change in Catch Distrubtion", "Ocean Whitefish: Simulated 16 Inch Minimum Size Limit")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS 2003-2021', '16 Inch MSL Simulation'))+
+  geom_vline(aes(xintercept = 406, color = "406 mm (16 Inches)"), linetype = 4)+
+   scale_color_manual(name = "Minimum Size Limit", values = c("406 mm (16 Inches)" = "blue"))
+```
+
+##Simulate 18 inch (457mm)  median SPR = 0.28557373
+
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "OWF"
+#Parameters are in FL
+KBPars@Linf <- 779
+KBPars@L50 <- 430
+KBPars@L95 <- 513
+KBPars@MK <- 1.783
+KBPars@L_units <- "mm"
+
+KBPars@SL50 <- 457
+KBPars@SL95 <- 458
+KBPars@BinWidth <- 10
+#KBPars@FM <- 2.09
+KBPars@SPR <- 0.286
+KBPars@BinMax <- 1000
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+
+MySim_OWF_18Inch <- LBSPRsim(KBPars)
+MySim_OWF_18Inch@SPR
+MySim_OWF_18Inch@FM
+calcCurves(MySim_OWF_18Inch)
+plotSim(MySim_OWF_18Inch)
+plotSim(MySim_OWF_18Inch, type="len.freq")
+plotSim(MySim_OWF_18Inch, type="yield.curve")
+
+```
+
+density plot
+```{r}
+#####
+#using midpoint length bins and PLength to create data frame of density in each length bin
+
+#MySim_OWF_18Inch@LMids #size bins
+#MySim_OWF_18Inch@pLCatch #proportion in each bin
+
+simulated_prop <- MySim_OWF_18Inch@pLCatch[,1]
+mids <- MySim_OWF_18Inch@LMids
+
+simulated_OWF_18Inch <- data.frame(mids, simulated_prop)
+
+#######
+#bin aggregate
+#data_OWF_2003_2021
+
+
+####
+#fill by group names
+
+simulated_OWF_18Inch$name <- "simulated5"
+
+#change names of both prop columns before binding so they match
+
+names(simulated_OWF_18Inch)[2] <- "prop"
+
+
+
+d<- rbind(data_OWF_2004_2021, simulated_OWF_18Inch)
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Change in Catch Distrubtion", "Ocean Whitefish: Simulated 18 Inch Minimum Size Limit")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS 2003-2021', '18 Inch MSL Simulation'))+
+  geom_vline(aes(xintercept = 457, color = " 457 mm (18 Inches)"), linetype = 4)+
+   scale_color_manual(name = "Minimum Size Limit", values = c(" 457 mm (18 Inches)" = "blue"))
+```
+
+
+#20 Simulate Inch MSL using median SPR = 0.403
+
+
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "OWF"
+#Parameters are in FL
+KBPars@Linf <- 779
+KBPars@L50 <- 430
+KBPars@L95 <- 513
+KBPars@MK <- 1.783
+KBPars@L_units <- "mm"
+
+KBPars@SL50 <- 508
+KBPars@SL95 <- 509
+KBPars@BinWidth <- 10
+#KBPars@FM <- 2.09
+KBPars@SPR <- 0.403
+KBPars@BinMax <- 1000
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+
+MySim_OWF_20Inch <- LBSPRsim(KBPars)
+MySim_OWF_20Inch@SPR
+MySim_OWF_20Inch@FM
+calcCurves(MySim_OWF_20Inch)
+plotSim(MySim_OWF_20Inch)
+plotSim(MySim_OWF_20Inch, type="len.freq")
+plotSim(MySim_OWF_20Inch, type="yield.curve")
+
+```
+
+density plot
+```{r}
+#####
+#using midpoint length bins and PLength to create data frame of density in each length bin
+
+#MySim_OWF_20Inch@LMids #size bins
+#MySim_OWF_20Inch@pLCatch #proportion in each bin
+
+simulated_prop <- MySim_OWF_20Inch@pLCatch[,1]
+mids <- MySim_OWF_20Inch@LMids
+
+simulated_OWF_20Inch <- data.frame(mids, simulated_prop)
+
+#######
+#bin aggregate
+#data_OWF_2003_2021
+
+
+####
+#fill by group names
+
+simulated_OWF_20Inch$name <- "simulated6"
+
+#change names of both prop columns before binding so they match
+
+names(simulated_OWF_20Inch)[2] <- "prop"
+
+
+
+d<- rbind(data_OWF_2004_2021, simulated_OWF_20Inch)
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Change in Catch Distrubtion", "Ocean Whitefish: Simulated 20 Inch Minimum Size Limit")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS 2003-2021', '20 Inch MSL Simulation'))+
+  geom_vline(aes(xintercept = 508, color = "508 mm (20 Inches)"), linetype = 4)+
+   scale_color_manual(name = "Minimum Size Limit", values = c("508 mm (20 Inches)" = "blue"))
+```
+
+
+
+
+
+
+
+
+###Combine all in density plot
+```{r}
+#####
+
+#data_OWF_2003_2021
+#simulated_OWF_12Inch
+#simulated_OWF_14Inch
+#simulated_OWF_16Inch
+#simulated_OWF_18Inch
+
+
+d <- rbind(data_OWF_2004_2021, simulated_OWF_12Inch, simulated_OWF_14Inch, simulated_OWF_16Inch, simulated_OWF_18Inch, simulated_OWF_20Inch)
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Change in Catch Distrubtion", "Ocean Whitefish")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS 2004-2021', '12-Inch MSL Simulation', '14-Inch MSL Simulation', '16-Inch MSL Simulation', '18-Inch MSL Simulation', '20-Inch MSL Simulation'))+
+    geom_vline(aes(xintercept = 305, color = "305 mm (12 Inches)"), linetype = 4)+
+   geom_vline(aes(xintercept = 356, color = "356 mm (14 Inches)"), linetype = 4)+
+   geom_vline(aes(xintercept = 406, color = "406 mm (16 Inches)"), linetype = 4)+
+  geom_vline(aes(xintercept = 457, color = "457 mm (18 Inches)"), linetype = 4)+
+   scale_color_manual(name = "Minimum Size Limit", values = c("305 mm (12 Inches)" = "red", "356 mm (14 Inches)" = "blue", "406 mm (16 Inches)" = "orange", "457 mm (18 Inches)" = "black"))+
+    theme(plot.title=element_text(hjust=0.5),plot.subtitle=element_text(hjust=0.5))+
+  xlim(0,800)
+```
+
+```{r}
+#ggsave("OWF_changeindist_stochastic.png", width = 30, height = 20, units = "cm", dpi = 500)
+```
+

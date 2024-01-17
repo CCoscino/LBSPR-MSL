@@ -1,0 +1,292 @@
+---
+title: "Barred Sand Bass Stochastic Size Limit Plots"
+output: pdf_document
+date: "2022-12-06"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#####Now Plots####
+
+```{r}
+quantile(LHSB_PRE$SPR_12_Inch_MS_KE, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T) #median SPR = 0.5959277
+
+
+quantile(LHSB_PRE$SPR_14_Inch_MS_KE, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T) #median SPR = 0.6951175
+
+quantile(LHSB_POST$SPR_16_Inch_MS_KE, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T) # median SPR = 0.7947208
+
+#######FM
+quantile(LHSB_PRE$FM, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T)#.56
+
+quantile(LHSB_POST$FM, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T)#.48
+
+
+
+```
+
+###
+#this is where we can check the relative yield for our MSL Sims
+
+#using LH parameter inputs from literature and median SPR
+
+##simulate 12 inch MSL Knife Edge using median SPR = 0.5959277
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Barred Sand Bass"
+#in TL
+KBPars@Linf <- 606 #both sexes
+KBPars@L50 <- 229 #females
+KBPars@L95 <- 241.35#females
+KBPars@MK <- 2.4
+KBPars@L_units <- "mm"
+
+KBPars@SL50 <- 305
+KBPars@SL95 <- 306
+KBPars@BinWidth <- 10
+#KBPars@FM <- 0.47
+KBPars@SPR <- 0.596
+KBPars@BinMax <- 800
+KBPars@BinMin <- 0
+
+
+MySim_SB_12Inch_Knife <- LBSPRsim(KBPars)
+MySim_SB_12Inch_Knife@SPR
+MySim_SB_12Inch_Knife@FM #.59
+calcCurves(MySim_SB_12Inch_Knife)
+plotSim(MySim_SB_12Inch_Knife)
+
+```
+density plot
+```{r}
+#####
+#using midpoint length bins and PLength to create data frame of density in each length bin
+
+
+simulated_prop <- MySim_SB_12Inch_Knife@pLCatch[,1]
+mids <- MySim_SB_12Inch_Knife@LMids
+
+simulated_SB_12Inch_Knife <- data.frame(mids, simulated_prop)
+
+
+########set up bin using Binning Freq file to load in 2004-2012 data
+
+SB_BIN_PRE <- read.csv("~/Desktop/Organized/Data/Binned Data/SB_BIN_PRE.csv")#load binned data file
+
+#bin aggregate
+
+
+newdf <- data.frame(SB_BIN_PRE)
+sum(newdf[,2])
+
+prop <- newdf[,2]/(sum(newdf[,2]))
+newdf$prop <- prop
+
+colnames(newdf)[1] <- c("mids")
+
+data_SB_2004_2012<- newdf[, c("mids", "prop")]
+
+# fill by group names
+data_SB_2004_2012$name <- "data1"
+
+
+####
+#if trying to fill by group names
+
+simulated_SB_12Inch_Knife$name <- "simulated12"
+
+#change names of both prop columns before binding so they match
+
+names(simulated_SB_12Inch_Knife)[2] <- "prop"
+names(data_SB_2004_2012)[2] <- "prop"
+
+
+d<- rbind(data_SB_2004_2012, simulated_SB_12Inch_Knife)
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Does the Model Fit the Data?", "Barred Sand Bass: 2004-2012")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS', 'LB-SPR Simulation'))+
+  geom_vline(aes(xintercept = 305, color = "305 mm (12 inches)"), linetype = 4)+
+   scale_color_manual(name = "Minimum Size Limit", values = c("305 mm (12 inches)" = "red"))
+        
+      
+```
+
+
+##SIMULATE 14 INCH MSL#####  use median SPR = 0.6951175
+
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Barred Sand Bass"
+KBPars@Linf <- 606
+KBPars@L50 <- 229
+KBPars@L95 <- 241.35
+KBPars@MK <- 2.4
+
+
+#KBPars@CVLinf <- .1
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 356
+KBPars@SL95 <- 357
+KBPars@BinWidth <- 10
+#KBPars@FM <- .47
+KBPars@SPR <- 0.695
+KBPars@BinMax <- 800
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+#KBPars@fDisc <- 
+
+MySim_SB_14Inch <- LBSPRsim(KBPars)
+MySim_SB_14Inch@SPR
+MySim_SB_14Inch@FM #.61
+calcCurves(MySim_SB_14Inch)
+plotSim(MySim_SB_14Inch)
+plotSim(MySim_SB_14Inch, type="len.freq")
+plotSim(MySim_SB_14Inch, type="yield.curve")
+
+```
+
+compare 14 inch MSL simulation to 2013-2021 aggregate
+density plot
+```{r}
+#####
+#using midpoint length bins and PLength to create data frame of density in each length bin
+
+MySim_SB_14Inch@LMids #size bins
+MySim_SB_14Inch@pLCatch #proportion in each bin
+
+simulated_prop <- MySim_SB_14Inch@pLCatch[,1]
+mids <- MySim_SB_14Inch@LMids
+
+simulated_SB_14Inch <- data.frame(mids, simulated_prop)
+
+#######
+########set up bin using Binning Freq file to load in 2013-2021 data
+
+SB_BIN_POST <- read.csv("~/Desktop/Organized/Data/Binned Data/SB_BIN_POST.csv")#load binned data file
+
+##bin aggregate
+newdf <- data.frame(SB_BIN_POST)
+sum(newdf[,2])
+
+prop <- newdf[,2]/(sum(newdf[,2]))
+newdf$prop <- prop
+
+colnames(newdf)[1] <- c("mids")
+
+data_SB_2013_2021<- newdf[, c("mids", "prop")]
+
+# fill by group names
+data_SB_2013_2021$name <- "data2"
+
+
+####
+#fill by group names
+#data name already changed
+simulated_SB_14Inch$name <- "simulated14"
+
+#change names of both prop columns before binding so they match
+#data name already changed
+names(simulated_SB_14Inch)[2] <- "prop"
+names(data_SB_2013_2021)[2] <- "prop"
+
+
+d<- rbind(data_SB_2013_2021, simulated_SB_14Inch)
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Does the Simulated MSL Catch Distribution Match the Data?", "Barred Sand Bass")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS 2013-2021', '14-Inch MSL Simulation '))+
+  geom_vline(aes(xintercept = 356, color = "356 mm (14 inches)"), linetype = 4)+
+   scale_color_manual(name = "Minimum Size Limit", values = c("356 mm (14 inches)" = "red"))+
+  xlim(0,800)+
+  theme(plot.title=element_text(hjust=0.5),plot.subtitle=element_text(hjust=0.5))
+
+#ggsave("SB_changeindist_14.png", width = 30, height = 20, units = "cm", dpi = 500)        
+```
+
+
+##Simulate 16 inch size limit using 2013-2021 estimates  of FM and median SPR = 0.7947208
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Barred Sand Bass"
+KBPars@Linf <- 606
+KBPars@L50 <- 229
+KBPars@L95 <- 241.35
+KBPars@MK <- 2.4
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 406
+KBPars@SL95 <- 407
+KBPars@BinWidth <- 10
+#KBPars@FM <- .48
+KBPars@SPR <- 0.798
+KBPars@BinMax <- 1500
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+#KBPars@fDisc <- 
+
+MySim_SB_16Inch <- LBSPRsim(KBPars)
+MySim_SB_16Inch@SPR
+MySim_SB_16Inch@FM #.59
+calcCurves(MySim_SB_16Inch )
+plotSim(MySim_SB_16Inch )
+plotSim(MySim_SB_16Inch , type="len.freq")
+plotSim(MySim_SB_16Inch , type="yield.curve")
+
+```
+
+Now include simualted 14 inch MSL
+####density plot but now with 2003-2012 and 2013-2021
+```{r}
+#data_SB_2004_2012
+#data_SB_2013_2021
+#simulated_SB_14Inch
+MySim_SB_16Inch@LMids #size bins
+MySim_SB_16Inch@pLCatch #proportion in each bin
+
+simulated_prop <- MySim_SB_16Inch@pLCatch[,1]
+mids <- MySim_SB_16Inch@LMids
+
+simulated_SB_16Inch <- data.frame(mids, simulated_prop)
+
+simulated_SB_16Inch$name <- "simulated16"
+names(simulated_SB_16Inch)[2] <- "prop"
+####
+
+
+d<- rbind(data_SB_2004_2012, data_SB_2013_2021, simulated_SB_12Inch_Knife, simulated_SB_14Inch, simulated_SB_16Inch)
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Change in Catch Distribution", "Barred Sand Bass")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c( '2004-2021 CRFS ', '2013-2021 CRFS', '12-Inch MSL Simulation ', '14-Inch MSL Simulation ', '16-Inch MSL Simulation '))+
+    geom_vline(aes(xintercept = 305, color = "305 mm (12 inches)"), linetype = 4)+
+  geom_vline(aes(xintercept = 356, color = "356 mm (14 inches)"), linetype = 4)+
+  geom_vline(aes(xintercept = 406, color = "406 mm (16 inches)"), linetype = 4)+
+   scale_color_manual(name = "Minimum Size Limit", values = c("305 mm (12 inches)" = "red", "356 mm (14 inches)" = "blue", "406 mm (16 inches)" = "orange"))+
+  theme(plot.title=element_text(hjust=0.5),plot.subtitle=element_text(hjust=0.5))+
+  xlim(0,800)
+```
+
+```{r}
+#ggsave("SB_changeindist.png", width = 30, height = 20, units = "cm", dpi = 500)
+```
+

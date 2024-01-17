@@ -1,0 +1,352 @@
+---
+title: "Kelp Bass Stcohastic Size Limit Plots"
+output: pdf_document
+date: "2022-12-06"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+quantile(LHKB_PRE$SPR_12_Inch_MS_KE, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T) #median SPR = 0.3731783
+
+quantile(LHKB_PRE$SPR_14_Inch_MS_KE, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T) #median SPR = 0.4928374
+
+quantile(LHKB_POST$SPR_16_Inch_MS_KE, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T) #median SPR = 0.5862168
+
+#####FM
+
+quantile(LHKB_PRE$FM, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T) 
+#median FM= 1.35
+
+quantile(LHKB_POST$FM, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T) 
+#median FM = 1.60
+```
+
+
+
+
+
+#this is where we can check the relative yield for our MSL Sims
+
+#Simulate 12 inch MSL knife edge
+use median SPR = 0.3731783
+
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Kelp Bass"
+#in TL
+KBPars@Linf <- 698 
+KBPars@L50 <- 223
+KBPars@L95 <- 238.3
+KBPars@MK <- 2.647
+KBPars@L_units <- "mm"
+
+KBPars@SL50 <- 305
+KBPars@SL95 <- 306
+KBPars@BinWidth <- 10
+#KBPars@FM <- 1.37
+KBPars@SPR <- 0.373
+KBPars@BinMax <- 800
+KBPars@BinMin <- 0
+
+MySim_KB_12Inch_Knife <- LBSPRsim(KBPars)
+MySim_KB_12Inch_Knife@SPR
+MySim_KB_12Inch_Knife@FM
+calcCurves(MySim_KB_12Inch_Knife)
+plotSim(MySim_KB_12Inch_Knife, type="yield.curve")
+```
+density plot
+12-in knife vs. 2004-2012 data
+```{r}
+library(ggplot2)
+#####
+#using midpoint length bins and PLength to create data frame of density in each length bin
+
+
+simulated_prop <- MySim_KB_12Inch_Knife@pLCatch[,1] #simulated proportion in each length bin (density in each length bin)
+mids <- MySim_KB_12Inch_Knife@LMids # bin mids
+
+simulated_KB_12Inch_Knife <- data.frame(mids, simulated_prop) #data frame of  density in each bin
+
+
+####
+# fill by group names
+
+simulated_KB_12Inch_Knife$name <- "simulated12"
+
+#change names of both prop columns before binding so they match
+
+
+
+########set up bin using Binning Freq file to load in 2004-2012 data
+
+KB_BIN_PRE <- read.csv("~/Desktop/Organized/Data/Binned Data/KB_BIN_PRE.csv")#load binned data file
+
+newdf <- data.frame(KB_BIN_PRE)
+sum(newdf[,2])
+
+prop <- newdf[,2]/(sum(newdf[,2])) #calculate proportion of data that falls into each length bin (density)
+newdf$prop <- prop #add density to dataframe to get dataframe with density in each length bin
+
+colnames(newdf)[1] <- c("mids") #name column 1
+
+data_KB_2004_2012<- newdf[, c("mids", "prop")] #create new dataframe with just bin midpoints and densities 
+
+# fill by group names
+data_KB_2004_2012$name <- "data1" #this is how we will fill plot
+
+
+#change names of both prop columns before binding so they match
+names(data_KB_2004_2012)[2] <- "prop"
+names(simulated_KB_12Inch_Knife)[2] <- "prop"
+
+##########
+
+d<- rbind(data_KB_2004_2012, simulated_KB_12Inch_Knife) # bind data frames together
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Change in Catch Distrubition", "Kelp Bass 12 Inch MSL")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS 2004-2012 ', '12 Inch MSL Simulation '))+
+geom_vline(aes(xintercept = 305, color = "305 mm (12 inches)"), linetype = 4)+
+   scale_color_manual(name = "Minimum Size Limit", values = c("305 mm (12 inches)" = "red"))+
+  theme(plot.title=element_text(hjust=0.5),plot.subtitle=element_text(hjust=0.5))
+        
+        
+        
+
+```
+
+##SIMULATE 14 INCH MSL#####
+Simulate 14 inch size limit using 2004-2012 estimates of FM and median SPR = 0.4928374
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Kelp Bass"
+#in TL
+KBPars@Linf <- 698 
+KBPars@L50 <- 223
+KBPars@L95 <- 238.2
+KBPars@MK <- 2.647 
+KBPars@L_units <- "mm"
+
+KBPars@SL50 <- 356
+KBPars@SL95 <- 357
+KBPars@BinWidth <- 10
+#KBPars@FM <- 1.37
+KBPars@SPR <- 0.493
+KBPars@BinMax <- 800
+KBPars@BinMin <- 0
+
+
+MySim_KB_14Inch <- LBSPRsim(KBPars)
+MySim_KB_14Inch@SPR
+MySim_KB_14Inch@FM
+calcCurves(MySim_KB_14Inch)
+plotSim(MySim_KB_14Inch)
+plotSim(MySim_KB_14Inch, type="yield.curve")
+```
+
+density plot
+```{r}
+#####
+#using midpoint length bins and PLength to create data frame of density in each length bin
+
+MySim_KB_14Inch@LMids #size bins
+MySim_KB_14Inch@pLCatch #proportion in each bin
+
+simulated_prop <- MySim_KB_14Inch@pLCatch[,1]
+mids <- MySim_KB_14Inch@LMids
+
+simulated_KB_14Inch <- data.frame(mids, simulated_prop)
+
+#######
+#Bin aggregate 
+#data_KB_2013_2021
+
+########set up bin using Binning Freq file to load in 2013-2021 data
+
+KB_BIN_POST <- read.csv("~/Desktop/Organized/Data/Binned Data/KB_BIN_POST.csv")#load binned data file
+
+newdf <- data.frame(KB_BIN_POST)
+sum(newdf[,2])
+
+prop <- newdf[,2]/(sum(newdf[,2]))
+newdf$prop <- prop
+
+colnames(newdf)[1] <- c("mids")
+
+data_KB_2013_2021<- newdf[, c("mids", "prop")]
+
+# fill by group names
+data_KB_2013_2021$name <- "data2"
+
+####
+# fill by group names
+
+simulated_KB_14Inch$name <- "simulated3"
+
+#change names of both prop columns before binding so they match
+names(data_KB_2013_2021)[2] <- "prop"
+names(simulated_KB_14Inch)[2] <- "prop"
+
+
+
+d<- rbind(data_KB_2013_2021, simulated_KB_14Inch)
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Does the Simulation Match the Data?", "Kelp Bass 14 Inch MSL")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS 2013-2021', '14 Inch MSL Simulation'))+
+  geom_vline(aes(xintercept = 356, color = "356 mm (14 inches)"), linetype = 4)+
+   scale_color_manual(name = "Minimum Size Limit", values = c("356 mm (14 inches)" = "red"))+
+  theme(plot.title=element_text(hjust=0.5),plot.subtitle=element_text(hjust=0.5))
+        
+```
+
+
+###Simulate 16 inch size limit using 2013-2021 estimates of FM and median SPR = 0.5862168
+
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Kelp Bass"
+#in TL
+KBPars@Linf <- 698 
+KBPars@L50 <- 223
+KBPars@L95 <- 238.2
+KBPars@MK <- 2.647 
+KBPars@L_units <- "mm"
+KBPars@SL50 <- 406
+KBPars@SL95 <- 407
+KBPars@BinWidth <- 10
+#KBPars@FM <- 1.62
+KBPars@SPR <-0.586
+KBPars@BinMax <- 1000
+KBPars@BinMin <- 0
+
+MySim_KB_16Inch <- LBSPRsim(KBPars)
+MySim_KB_16Inch@SPR
+MySim_KB_16Inch@FM#1.57
+calcCurves(MySim_KB_16Inch)
+plotSim(MySim_KB_16Inch)
+plotSim(MySim_KB_16Inch, type="yield.curve")
+
+
+```
+
+density plot. Plot simulated 16 inch and 2013-2021
+```{r}
+#####
+#using midpoint length bins and PLength to create data frame of density in each length bin
+
+MySim_KB_16Inch@LMids #size bins
+MySim_KB_16Inch@pLCatch #proportion in each bin
+
+simulated_prop <- MySim_KB_16Inch@pLCatch[,1]
+mids <- MySim_KB_16Inch@LMids
+
+simulated_KB_16Inch <- data.frame(mids, simulated_prop)
+
+#aggregate already binned
+#data_KB_2013_2021
+
+####
+#fill by group names
+
+simulated_KB_16Inch$name <- "simulated4"
+
+#change names of both prop columns before binding so they match
+
+names(simulated_KB_16Inch)[2] <- "prop"
+
+
+
+d<- rbind(data_KB_2013_2021, simulated_KB_16Inch)
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Change in Catch Distribution", "Kelp Bass: Simulated 16 Inch MSL")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS 2013-2021 (14 Inch MSL)', '16 Inch MSL Simulation'))+
+  geom_vline(aes(xintercept = 356, color = "356 mm (14 inches)"), linetype = 4)+
+  geom_vline(aes(xintercept = 406, color = "406 mm (16 inches)"), linetype = 4)+
+   scale_color_manual(name = "Minimum Size Limit", values = c("356 mm (14 inches)" = "blue", "406 mm (16 inches)" = "orange"))+
+  theme(plot.title=element_text(hjust=0.5),plot.subtitle=element_text(hjust=0.5))
+  
+
+```
+
+#density plot. Plot all together
+#now use both sim files
+```{r}
+
+#data_KB_2004_2012
+#data_KB_2013_2021
+#simulated_KB_14Inch
+#simulated_KB_16Inch
+
+
+
+d<- rbind(data_KB_2004_2012, data_KB_2013_2021, simulated_KB_12Inch_Knife, simulated_KB_14Inch, simulated_KB_16Inch)
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Change in Catch Distribution", "Kelp Bass")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS 2004-2012', 'CRFS 2013-2021', '12-Inch MSL Simulation', '14-Inch MSL Simulation', '16-Inch MSL Simulation'))+
+   geom_vline(aes(xintercept = 305, color = "305 mm (12 inches)"), linetype = 4)+
+  geom_vline(aes(xintercept = 356, color = "356 mm (14 inches)"), linetype = 4)+
+  geom_vline(aes(xintercept = 406, color = "406 mm (16 inches)"), linetype = 4)+
+  scale_color_manual(name = "Minimum Size Limit", values = c("305 mm (12 inches)" = "red", "356 mm (14 inches)" = "blue", "406 mm (16 inches)" = "orange"))+
+    theme(plot.title=element_text(hjust=0.5),plot.subtitle=element_text(hjust=0.5))+
+   xlim(0, 800)
+```
+
+```{r}
+#ggsave("KB_changeindist.png", width = 30, height = 20, units = "cm", dpi = 500)
+```
+
+#2013-2021 v simulated 14 inch MSL
+```{r}
+
+
+#data_KB_2013_2021
+#simulated_KB_14Inch
+
+
+
+
+d<- rbind(data_KB_2013_2021, simulated_KB_14Inch)
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Does the Simulated MSL Catch Distribution Match the Data?", "Kelp Bass")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS 2013-2021',  '14-Inch MSL Simulation '))+
+  geom_vline(aes(xintercept = 356, color = "356 mm (14 inches)"), linetype = 4)+
+  scale_color_manual(name = "Minimum Size Limit", values = c("356 mm (14 inches)" = "red"))+
+    theme(plot.title=element_text(hjust=0.5),plot.subtitle=element_text(hjust=0.5))+
+  xlim(0,800)
+
+#ggsave("KB_changeindist_14.png", width = 30, height = 20, units = "cm", dpi = 500)
+```

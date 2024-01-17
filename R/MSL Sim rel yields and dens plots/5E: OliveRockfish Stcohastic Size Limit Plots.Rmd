@@ -1,0 +1,306 @@
+---
+title: "Olive CV.1 Stochastic Size Limit Plots"
+output: pdf_document
+date: "2022-12-07"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+###Check Yield
+Simulate current pop
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Olive Rockfish"
+#Parameters are in TL
+KBPars@Linf <- 489.5
+KBPars@L50 <- 340
+KBPars@L95 <- 385
+KBPars@MK <- 1.08
+KBPars@L_units <- "mm"
+KBPars@CVLinf <- .1
+
+KBPars@SL50 <- 275.050
+KBPars@SL95 <- 339.5700
+KBPars@BinWidth <- 10
+#KBPars@FM <- 0.65
+KBPars@SPR <-0.417
+KBPars@BinMax <- 700
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_ORF_2003_2021<- LBSPRsim(KBPars)
+MySim_ORF_2003_2021@SPR
+MySim_ORF_2003_2021@FM#.65
+calcCurves(MySim_ORF_2003_2021)
+
+```
+####Now Plot
+
+```{r}
+quantile(LHOliveRFCV1$SPR_12_Inch_MSL_KE, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T) #median SPR = 0.45489731
+
+quantile(LHOliveRFCV1$SPR_14_Inch_MSL_KE, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T) #median SPR = 0.5576523
+
+quantile(LHOliveRFCV1$SPR_16_Inch_MSL_KE, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T) #median SPR =0.6747647
+
+
+#####FM
+quantile(LHOliveRFCV1$FM, probs = c(0.025,0.25,0.5,0.75,0.975), na.rm = T) #.63
+###########
+```
+
+
+##Simulate 12in Fork Length size limit (305 mm) using #median SPR = 0.455
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Olive Rockfish"
+#Parameters are in TL
+KBPars@Linf <- 489.5
+KBPars@L50 <- 340
+KBPars@L95 <- 385
+KBPars@MK <- 1.08
+KBPars@CVLinf <- .1
+KBPars@L_units <- "mm"
+
+KBPars@SL50 <- 305
+KBPars@SL95 <- 306
+KBPars@BinWidth <- 10
+#KBPars@FM <- 0.65
+KBPars@SPR  <- 0.455
+KBPars@BinMax <- 800
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_ORF_12Inch <- LBSPRsim(KBPars)
+MySim_ORF_12Inch@SPR
+MySim_ORF_12Inch@FM #.69
+calcCurves(MySim_ORF_12Inch)
+plotSim(MySim_ORF_12Inch, type="yield.curve")
+
+```
+
+density plot
+```{r}
+#####
+#using midpoint length bins and PLength to create data frame of density in each length bin
+
+#MySim@LMids #size bins
+#MySim@pLCatch #proportion in each bin
+
+simulated_prop <- MySim_ORF_12Inch@pLCatch[,1]
+mids <- MySim_ORF_12Inch@LMids
+
+simulated_ORF_12Inch <- data.frame(mids, simulated_prop)
+
+#######
+#aggregate 
+
+newdf <- data.frame(OLIVEFreq)
+sum(newdf$V2)
+
+prop <- newdf$V2/(sum(newdf$V2))
+newdf$prop <- prop
+
+colnames(newdf)[1] <- c("mids")
+
+data_ORF_2004_2021 <- newdf[, c("mids", "prop")]
+
+
+####
+#fill by group names
+data_ORF_2004_2021$name <- "data1"
+simulated_ORF_12Inch$name <- "simulated2"
+
+#change names of both prop columns before binding so they match
+names(data_ORF_2004_2021)[2] <- "prop"
+names(simulated_ORF_12Inch)[2] <- "prop"
+
+
+
+d<- rbind(data_ORF_2004_2021, simulated_ORF_12Inch)
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Change in Catch Distribution When CV Linf=0.1", "Olive Rockfish: Simulated 12 Inch Minimum Size Limit")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS', 'LB-SPR Simulation'))+
+  geom_vline(aes(xintercept = 305, color = "305 mm (12 Inches)"), linetype = 4)+
+   scale_color_manual(name = "Minimum Size Limit", values = c("305 mm (12 Inches)" = "blue"))
+  
+```
+
+##Simulate 14in Total Length size limit (356 mm) using median SPR = 0.558
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Olive Rockfish"
+#Parameters are in TL
+KBPars@Linf <- 489.5
+KBPars@L50 <- 340
+KBPars@L95 <- 385
+KBPars@MK <- 1.08
+KBPars@CVLinf <- .1
+KBPars@L_units <- "mm"
+
+KBPars@SL50 <- 356
+KBPars@SL95 <- 357
+KBPars@BinWidth <- 10
+#KBPars@FM <- 0.65
+KBPars@SPR <- 0.558
+KBPars@BinMax <- 700
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_ORF_14Inch <- LBSPRsim(KBPars)
+MySim_ORF_14Inch@SPR
+MySim_ORF_14Inch@FM #.75
+calcCurves(MySim_ORF_14Inch)
+plotSim(MySim_ORF_14Inch, type="yield.curve")
+
+```
+
+density plot
+```{r}
+#####
+#using midpoint length bins and PLength to create data frame of density in each length bin
+
+#MySim@LMids #size bins
+#MySim@pLCatch #proportion in each bin
+
+simulated_prop <- MySim_ORF_14Inch@pLCatch[,1]
+mids <- MySim_ORF_14Inch@LMids
+
+simulated_ORF_14Inch <- data.frame(mids, simulated_prop)
+
+#######
+#aggregate already binned
+
+####
+#fill by group names
+
+simulated_ORF_14Inch$name <- "simulated3"
+
+#change names of both prop columns before binding so they match
+
+names(simulated_ORF_14Inch)[2] <- "prop"
+
+
+
+d<- rbind(data_ORF_2004_2021, simulated_ORF_14Inch)
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Change in Catch Distribution When CV Linf=0.2", "Olive Rockfish: Simulated 14 Inch Minimum Size Limit")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS', 'LB-SPR Simulation'))+
+  geom_vline(aes(xintercept = 356, color = "356 mm (14 Inches)"), linetype = 4)+
+   scale_color_manual(name = "Minimum Size Limit", values = c("356 mm (14 Inches)" = "blue"))
+  
+```
+
+##Simulate 16in Fork Length size limit (406 mm) using median SPR = 0.6067075
+```{r}
+KBPars <- new("LB_pars")
+KBPars@Species <- "Olive Rockfish"
+#Parameters are in TL
+KBPars@Linf <- 489.5
+KBPars@L50 <- 340
+KBPars@L95 <- 385
+KBPars@MK <- 1.08
+KBPars@CVLinf <- .1
+KBPars@L_units <- "mm"
+
+KBPars@SL50 <- 406
+KBPars@SL95 <- 407
+KBPars@BinWidth <- 10
+#KBPars@FM <- 0.65
+KBPars@SPR <- 0.675
+KBPars@BinMax <- 700
+KBPars@BinMin <- 0
+KBPars@L_units <- "mm"
+
+MySim_ORF_16Inch <- LBSPRsim(KBPars)
+MySim_ORF_16Inch@SPR
+MySim_ORF_16Inch@FM #.95
+calcCurves(MySim_ORF_16Inch)
+plotSim(MySim_ORF_16Inch, type="yield.curve")
+
+```
+density plot
+```{r}
+#####
+#using midpoint length bins and PLength to create data frame of density in each length bin
+
+#MySim@LMids #size bins
+#MySim@pLCatch #proportion in each bin
+
+simulated_prop <- MySim_ORF_16Inch@pLCatch[,1]
+mids <- MySim_ORF_16Inch@LMids
+
+simulated_ORF_16Inch <- data.frame(mids, simulated_prop)
+
+#######
+#aggregate already binned
+
+####
+#fill by group names
+
+simulated_ORF_16Inch$name <- "simulated4"
+
+#change names of both prop columns before binding so they match
+
+names(simulated_ORF_16Inch)[2] <- "prop"
+
+
+
+d<- rbind(data_ORF_2004_2021, simulated_ORF_16Inch)
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Change in Catch Distribution When CV Linf=0.1", "Olive Rockfish: Simulated 12 Inch Minimum Size Limit")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS', 'LB-SPR Simulation'))+
+  geom_vline(aes(xintercept = 406, color = "406 mm (16 Inches)"), linetype = 4)+
+   scale_color_manual(name = "Minimum Size Limit", values = c("406 mm (16 Inches)" = "blue"))
+  
+```
+
+#Combine all size limits
+density plot
+```{r}
+#####
+
+#data_ORF_2003_2021
+#simulated_ORF_12Inch
+#simulated_ORF_14Inch
+#simulated_ORF_16Inch
+
+d<- rbind(data_ORF_2004_2021, simulated_ORF_12Inch, simulated_ORF_14Inch, simulated_ORF_16Inch)
+
+ggplot(d, aes(x = mids, y = prop, fill=name)) + 
+        geom_area(position = "dodge", linetype = 2, color = "black", alpha = .5)+ 
+        ylab("Density") + 
+        xlab("Length (mm)")+
+        ggtitle("Change in Catch Distribution", "Olive Rockfish")+
+        scale_alpha_manual(values = c(`0.6` = 0.6, `1` = 1), guide = "none") + #what is this?
+        theme_bw()+ #matches theme of LBSPR figures
+        scale_fill_discrete(name = "Source", labels=c('CRFS 2004-2021  ', '12-Inch MSL Simulation  ', '14-Inch MSL Simultaion  ', '16-Inch MSL Simulation  '))+
+  geom_vline(aes(xintercept = 305, color = "305 mm (12 Inches)"), linetype = 4)+
+  geom_vline(aes(xintercept = 356, color = "356 mm (14 Inches)"), linetype = 4)+
+  geom_vline(aes(xintercept = 406, color = "406 mm (16 Inches)"), linetype = 4)+
+   scale_color_manual(name = "Minimum Size Limit", values = c("305 mm (12 Inches)" = "red", "356 mm (14 Inches)" = "blue", "406 mm (16 Inches)" = "orange"))+
+     theme(plot.title=element_text(hjust=0.5),plot.subtitle=element_text(hjust=0.5))
+
+#ggsave("OLV_CV.1_changeindist.png", width = 30, height = 20, units = "cm", dpi = 500)
+```
