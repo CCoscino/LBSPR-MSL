@@ -61,8 +61,8 @@ make_gradient <- function(deg = 45, n = 100, cols = blues9) {
   )
 }
 
-yellow_green <- make_gradient(
-  deg = 90, n = 500, cols = c("yellow", "green"))
+green <- make_gradient(
+  deg = 90, n = 500, cols = c("green"))
 green_yellow <- make_gradient(
   deg = 90, n = 500, cols = c("green", "yellow"))
 yellow_red<- make_gradient(
