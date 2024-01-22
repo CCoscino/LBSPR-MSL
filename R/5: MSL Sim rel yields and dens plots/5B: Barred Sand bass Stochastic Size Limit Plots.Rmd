@@ -220,7 +220,7 @@ ggplot(d, aes(x = mids, y = prop, fill=name)) +
 ```
 
 
-##Simulate 16 inch size limit using 2013-2021 estimates  of FM and median SPR = 0.7947208
+##Simulate 16 inch size limit using 2013-2021 estimates  of FM and median SPR 
 ```{r}
 KBPars <- new("LB_pars")
 KBPars@Species <- "Barred Sand Bass"
@@ -249,7 +249,7 @@ plotSim(MySim_SB_16Inch , type="yield.curve")
 
 ```
 
-Now include simualted 14 inch MSL
+Now include simulated 14 inch MSL
 ####density plot but now with 2003-2012 and 2013-2021
 ```{r}
 #data_SB_2004_2012
