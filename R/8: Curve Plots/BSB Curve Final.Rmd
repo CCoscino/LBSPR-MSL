@@ -565,6 +565,7 @@ gg.SB16 <- gg.SB16 + geom_line(aes(x=SBcurves16$FM, y=SBcurves16$Yield), color =
 
 
 ```{r}
+library("ggpubr")
 BSB.curves <- ggarrange(gg.SB2004.2012, gg.SB2013.2021, gg.SB12, gg.SB14, gg.SB16, ncol = 2, nrow = 3,  common.legend = TRUE, legend = "top")
 
 annotate_figure(BSB.curves , top = text_grob("SPR and Relative Yield Response to Varying Relative Fishing Mortality \n Barred Sand Bass", color = "black", face = "bold", size = 18))
