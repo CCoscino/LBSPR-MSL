@@ -206,7 +206,7 @@ ggplot(d, aes(x = mids, y = prop, fill=name)) +
   
 ```
 
-##Simulate 16in Fork Length size limit (406 mm) using median SPR = 0.6067075
+##Simulate 16in Fork Length size limit (406 mm) using median SPR 
 ```{r}
 KBPars <- new("LB_pars")
 KBPars@Species <- "Olive Rockfish"
